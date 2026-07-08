@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useCart } from "../contexts/CartContext";
 
-export const CheckoutDialog = () => {
+const CheckoutDialog = () => {
   const { items, totalPrice, clearCart } = useCart();
   const [phone, setPhone] = useState("");
   const [county, setCounty] = useState("");
@@ -9,8 +9,8 @@ export const CheckoutDialog = () => {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  // Target the environment variable base URL string dynamically
-  const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+  // Targets your configured environment variable automatically
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://jengamart-0.onrender.com/api";
 
   const handleCheckoutSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +30,6 @@ export const CheckoutDialog = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // Add your user authentication token header if required here
           "Authorization": `Bearer ${localStorage.getItem("token") || ""}`
         },
         body: JSON.stringify(payload),
@@ -39,7 +38,7 @@ export const CheckoutDialog = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        // Drop validation or security alerts straight into the UI layer
+        // Intercepts server-side validation messages and renders them inside the UI alert box
         throw new Error(data.message || "An unexpected error occurred during processing.");
       }
 
@@ -109,3 +108,6 @@ export const CheckoutDialog = () => {
     </div>
   );
 };
+
+// Declared as default export to flawlessly satisfy the import footprint inside CartSheet.tsx
+export default CheckoutDialog;
