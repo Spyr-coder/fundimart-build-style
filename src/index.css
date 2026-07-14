@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Core colors */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Primary - Navy Blue Base */
+    --primary: 222 47% 15%;
+    --primary-foreground: 210 40% 98%;
+
+    /* Secondary - Light Blue Soft */
+    --secondary: 199 89% 95%;
+    --secondary-foreground: 199 89% 30%;
+
+    /* Muted tones */
+    --muted: 214 32% 91%;
+    --muted-foreground: 215 16% 47%;
+
+    /* Accent - Vibrant Action Orange (Maintained for contrast) */
+    --accent: 24 95% 53%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 85%;
+    --input: 214 32% 85%;
+    --ring: 222 47% 15%;
+
+    --radius: 1rem;
+
+    /* Sidebar */
+    --sidebar-background: 210 40% 96%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 222 47% 15%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 199 89% 90%;
+    --sidebar-accent-foreground: 199 89% 30%;
+    --sidebar-border: 214 32% 85%;
+    --sidebar-ring: 222 47% 15%;
+  }
+
+  .dark {
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 6%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 6%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 75%;
+    --primary-foreground: 222 47% 4%;
+
+    --secondary: 222 47% 12%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 32% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 24 95% 53%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 32% 17%;
+    --input: 217 32% 17%;
+    --ring: 217 91% 75%;
+
+    --sidebar-background: 222 47% 2%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217 91% 75%;
+    --sidebar-primary-foreground: 222 47% 4%;
+    --sidebar-accent: 222 47% 10%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 32% 17%;
+    --sidebar-ring: 217 91% 75%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+}
+
+/* Custom dynamic utilities */
+@layer utilities {
+  /* Requested: Light Blue to Navy Blue Gradient */
+  .bg-blue-gradient {
+    background: linear-gradient(135deg, hsl(199 89% 70%) 0%, hsl(222 47% 15%) 100%);
+  }
+
+  .bg-dynamic-gradient {
+    /* Updated dynamic to use the new blue gradient transition to orange */
+    background: linear-gradient(135deg, hsl(199 89% 70%) 0%, hsl(222 47% 15%) 50%, hsl(24 95% 53%) 100%);
+  }
+
+  .bg-navy-gradient {
+    background: linear-gradient(135deg, hsl(222 47% 25%) 0%, hsl(222 47% 10%) 100%);
+  }
+
+  .bg-orange-gradient {
+    background: linear-gradient(135deg, hsl(24 95% 53%) 0%, hsl(15 95% 45%) 100%);
+  }
+
+  .text-dynamic-gradient {
+    background: linear-gradient(135deg, hsl(199 89% 60%) 0%, hsl(222 47% 20%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .animate-gradient-x {
+    background-size: 200% 200%;
+    animation: gradient-x 15s ease infinite;
+  }
+
+  @keyframes gradient-x {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+}
