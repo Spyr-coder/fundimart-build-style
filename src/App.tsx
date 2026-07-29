@@ -25,19 +25,15 @@ import Privacy from "./pages/Privacy";
 import CookiePolicy from "./pages/CookiePolicy";
 import About from "./pages/About";
 import HelpCenter from "./pages/HelpCenter";
-import TrackOrder from "./pages/TrackOrder";
 import OrderSuccess from "./pages/OrderSuccess";
 import Blog from "./pages/Blog";
 import Careers from "./pages/Careers";
 import Shipping from "./pages/Shipping";
 import Returns from "./pages/Returns";
-import DriverRegistration from "./pages/DriverRegistration";
-import LogisticsDashboard from "./pages/LogisticsDashboard";
 import Contact from "./pages/Contact";
 import ProjectPlanner from "./pages/ProjectPlanner";
 import ProductComparison from "./pages/ProductComparison";
 import FundiAI from "@/components/FundiAI";
-import PaymentCallback from "./pages/PaymentCallback";
 import ScrollToTop from "./components/ScrollToTop";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 const queryClient = new QueryClient();
@@ -80,9 +76,6 @@ const AppContent = () => {
                 <Route path="/seller/dashboard" element={<SellerDashboard />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
-                {/* Logistics Pages */}
-                <Route path="/driver/register" element={<DriverRegistration />} />
-                <Route path="/logistics/dashboard" element={<LogisticsDashboard />} />
                 {/* Info & Legal Pages */}
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
@@ -90,7 +83,6 @@ const AppContent = () => {
                 {/* Footer Link Pages */}
                 <Route path="/about" element={<About />} />
                 <Route path="/help" element={<HelpCenter />} />
-                <Route path="/track-order" element={<TrackOrder />} />
                 <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/careers" element={<Careers />} />
@@ -99,7 +91,6 @@ const AppContent = () => {
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/planner" element={<ProjectPlanner />} />
                 <Route path="/compare" element={<ProductComparison />} />
-                <Route path="/payment/callback" element={<PaymentCallback />} />
                 {/* Catch-all */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
