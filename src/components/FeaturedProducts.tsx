@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Product } from "@/types/product";
 import { useNavigate } from "react-router-dom";
+import { placeholderImage } from "@/lib/utils";
 
 const FeaturedProducts = () => {
   const [allProducts, setAllProducts] = useState<any[]>([]);
@@ -23,7 +24,7 @@ const FeaturedProducts = () => {
         })
         .map((p: Product) => ({
           id: p.id,
-          image: p.photos?.[0] || "https://via.placeholder.com/300x300?text=" + encodeURIComponent(p.name),
+          image: p.photos?.[0] || placeholderImage(p.name),
           name: p.name,
           price: p.price,
           rating: 4.5,

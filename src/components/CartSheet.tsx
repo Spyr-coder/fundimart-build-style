@@ -95,7 +95,7 @@ const CartSheet = () => {
                 size="lg"
                 onClick={() => setIsCheckoutOpen(true)}
               >
-                Checkout — KES {totalPrice.toLocaleString()}
+                Proceed to Delivery — KES {totalPrice.toLocaleString()}
               </Button>
               <Button variant="outline" className="w-full" onClick={clearCart}>
                 Clear Cart

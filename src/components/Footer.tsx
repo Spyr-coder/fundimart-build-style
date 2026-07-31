@@ -123,7 +123,6 @@ const Footer = () => {
             <h4 className="font-semibold text-lg mb-6">Customer Service</h4>
             <ul className="space-y-3">
               <li><Link to="/help" className="text-background/70 hover:text-primary transition-colors">Help Center</Link></li>
-              <li><Link to="/track-order" className="text-background/70 hover:text-primary transition-colors">Track Your Order</Link></li>
               <li><Link to="/shipping" className="text-background/70 hover:text-primary transition-colors">Shipping & Delivery</Link></li>
               <li><Link to="/returns" className="text-background/70 hover:text-primary transition-colors">Returns & Refunds</Link></li>
               <li><Link to="/contact" className="text-background/70 hover:text-primary transition-colors">Contact Us</Link></li>

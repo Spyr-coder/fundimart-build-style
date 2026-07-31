@@ -29,7 +29,7 @@ export default function AdminProducts() {
 
   // Get administrative auth headers
   const getHeaders = () => {
-    const token = localStorage.getItem('admin_token') || localStorage.getItem('token');
+    const token = localStorage.getItem('admin_token') || localStorage.getItem('fundimart_token') || localStorage.getItem('token');
     return {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`

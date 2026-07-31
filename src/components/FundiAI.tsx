@@ -47,7 +47,7 @@ export default function FundiAI() {
       }));
 
       // 3. Make the API request to your verified Node/Express server
-      const response = await fetch("http://localhost:5000/api/ai/estimate", {
+      const response = await fetch("/api/ai/estimate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

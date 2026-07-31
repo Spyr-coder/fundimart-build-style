@@ -24,6 +24,7 @@ export interface Product {
   name: string;
   category: string;
   price: number;
+  unit?: string;
   stock: number;
   quality?: string;
   description?: string;

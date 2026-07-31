@@ -38,16 +38,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const users = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
-      const foundUser = users.find((u: User) => u.email === email);
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (!foundUser) {
-        throw new Error("User not found");
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Invalid email or password");
       }
 
-      // In a real app, password verification happens here
-      setUser(foundUser);
-      localStorage.setItem("fundimart_user", JSON.stringify(foundUser));
+      // Map backend response user model (name) to frontend user model (firstName, lastName)
+      const [firstName = "", ...lastNameParts] = (result.user.name || "").split(" ");
+      const lastName = lastNameParts.join(" ");
+
+      const mappedUser: User = {
+        id: result.user.id,
+        email: result.user.email,
+        firstName,
+        lastName,
+        phone: "", // Backend response does not contain phone
+        role: result.user.role === "admin" ? "seller" : "buyer",
+        createdAt: Date.now(),
+      };
+
+      setUser(mappedUser);
+      localStorage.setItem("fundimart_token", result.token);
+      localStorage.setItem("fundimart_user", JSON.stringify(mappedUser));
     } finally {
       setIsLoading(false);
     }
@@ -80,15 +101,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const registerBuyer = async (firstName: string, lastName: string, email: string, phone: string, password: string) => {
     setIsLoading(true);
     try {
-      const users = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
-      
-      if (users.some((u: User) => u.email === email)) {
-        throw new Error("Email already registered");
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: `${firstName} ${lastName}`.trim(),
+          email,
+          phone,
+          password
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Registration failed");
       }
 
-      const newUser: User = {
-        id: Date.now().toString(),
-        email,
+      const mappedUser: User = {
+        id: result.user.id,
+        email: result.user.email,
         firstName,
         lastName,
         phone,
@@ -96,10 +130,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         createdAt: Date.now(),
       };
 
-      users.push(newUser);
-      localStorage.setItem("fundimart_users", JSON.stringify(users));
-      localStorage.setItem("fundimart_user", JSON.stringify(newUser));
-      setUser(newUser);
+      setUser(mappedUser);
+      localStorage.setItem("fundimart_token", result.token);
+      localStorage.setItem("fundimart_user", JSON.stringify(mappedUser));
     } finally {
       setIsLoading(false);
     }
@@ -117,26 +150,39 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   ) => {
     setIsLoading(true);
     try {
-      const users = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
-      
-      if (users.some((u: User) => u.email === email)) {
-        throw new Error("Email already registered");
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: `${firstName} ${lastName}`.trim(),
+          email,
+          phone,
+          password
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Registration failed");
       }
 
       const sellerId = `seller_${Date.now()}`;
       const seller: Seller = {
         id: sellerId,
-        userId: Date.now().toString(),
+        userId: result.user.id,
         hardwareName,
         location,
         firmEmail,
-        isVerified: false,
+        isVerified: true,
         createdAt: Date.now(),
       };
 
-      const newUser: User = {
-        id: seller.userId,
-        email,
+      const mappedUser: User = {
+        id: result.user.id,
+        email: result.user.email,
         firstName,
         lastName,
         phone,
@@ -145,10 +191,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         createdAt: Date.now(),
       };
 
-      users.push(newUser);
-      localStorage.setItem("fundimart_users", JSON.stringify(users));
-      localStorage.setItem("fundimart_user", JSON.stringify(newUser));
-      setUser(newUser);
+      setUser(mappedUser);
+      localStorage.setItem("fundimart_token", result.token);
+      localStorage.setItem("fundimart_user", JSON.stringify(mappedUser));
     } finally {
       setIsLoading(false);
     }
@@ -157,6 +202,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("fundimart_user");
+    localStorage.removeItem("fundimart_token");
   };
 
   const isSeller = () => {
