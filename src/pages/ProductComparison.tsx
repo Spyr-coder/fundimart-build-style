@@ -8,6 +8,7 @@ import { Star, ShieldCheck, Truck, Scale, X, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import { Product } from "@/types/product";
+import { placeholderImage } from "@/lib/utils";
 
 export default function ProductComparison() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -27,7 +28,7 @@ export default function ProductComparison() {
         })
         .map((p: Product) => ({
           id: p.id,
-          image: p.photos?.[0] || "https://via.placeholder.com/300x300?text=" + encodeURIComponent(p.name),
+          image: p.photos?.[0] || placeholderImage(p.name),
           name: p.name,
           price: p.price,
           rating: p.rating || 4.5,

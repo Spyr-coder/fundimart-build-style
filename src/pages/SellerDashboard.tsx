@@ -11,6 +11,7 @@ import { ProductForm } from "@/components/ProductForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { Product } from "@/types/product";
 import { toast } from "sonner";
+import { placeholderImage } from "@/lib/utils";
 
 const SellerDashboard = () => {
   const navigate = useNavigate();
@@ -429,7 +430,7 @@ const SellerDashboard = () => {
                   <Card key={product.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow border-border/50">
                     <div className="h-48 bg-muted overflow-hidden relative">
                       <img
-                        src={product.photos?.[0] || "https://via.placeholder.com/400x300?text=" + encodeURIComponent(product.name)}
+                        src={product.photos?.[0] || placeholderImage(product.name, 400, 300)}
                         alt={product.name}
                         className="w-full h-full object-cover hover:scale-105 transition-transform"
                       />

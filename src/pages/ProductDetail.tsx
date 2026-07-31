@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import ProductCard from "@/components/ProductCard";
 import ProductReviews from "@/components/ProductReviews";
+import { placeholderImage } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 
@@ -26,7 +27,7 @@ const ProductDetail = () => {
     const storedProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
     const formattedStored = storedProducts.map((p: Product) => ({
       id: p.id,
-      image: p.photos?.[0] || "https://via.placeholder.com/300x300?text=" + encodeURIComponent(p.name),
+      image: p.photos?.[0] || placeholderImage(p.name),
       name: p.name,
       price: p.price,
       rating: p.rating || 4.5,

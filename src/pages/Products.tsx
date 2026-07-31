@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Loader2 } from "lucide-react";
+import { placeholderImage } from "@/lib/utils";
 
 export default function Products() {
   const [allProducts, setAllProducts] = useState<any[]>([]);
@@ -32,7 +33,7 @@ export default function Products() {
           stock: p.stock,
           description: p.description,
           // Since "photos" doesn't exist in Prisma yet, use a clean placeholder image
-          image: `https://via.placeholder.com/300x300?text=${encodeURIComponent(p.name)}`,
+          image: placeholderImage(p.name),
           // Provide defaults for UI fields not stored in your Prisma model yet
           rating: 4.5,
           reviews: Math.floor(Math.random() * 15) + 2, // Temporary realistic review count
@@ -55,7 +56,7 @@ export default function Products() {
             })
             .map((p: any) => ({
               id: p.id,
-              image: p.photos?.[0] || `https://via.placeholder.com/300x300?text=${encodeURIComponent(p.name)}`,
+              image: p.photos?.[0] || placeholderImage(p.name),
               name: p.name,
               price: p.price,
               rating: p.rating || 4.5,

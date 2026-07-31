@@ -7,6 +7,7 @@ import { categories } from "@/data/products";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Product } from "@/types/product";
+import { placeholderImage } from "@/lib/utils";
 
 const Category = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -33,7 +34,7 @@ const Category = () => {
         })
         .map((p: Product) => ({
           id: p.id,
-          image: p.photos?.[0] || "https://via.placeholder.com/300x300?text=" + encodeURIComponent(p.name),
+          image: p.photos?.[0] || placeholderImage(p.name),
           name: p.name,
           price: p.price,
           rating: 4.5,
