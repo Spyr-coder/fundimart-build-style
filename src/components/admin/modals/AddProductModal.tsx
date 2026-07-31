@@ -40,7 +40,7 @@ export default function AddProductModal({ onClose, onSubmit }: AddProductModalPr
     category: '',
     price: '',
     stock: '',
-    status: 'active' as const,
+    status: 'active' as 'active' | 'inactive',
   });
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);

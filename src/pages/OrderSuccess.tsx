@@ -1,12 +1,3 @@
-<<<<<<< HEAD
-
-import { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { CheckCircle2, Truck, Package, Calendar, MapPin, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-=======
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { CheckCircle2, Package, Phone, MessageCircle, Copy, ArrowRight, MapPin, User } from "lucide-react";
@@ -14,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
->>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
 
 interface OrderItem {
   id: string;
@@ -28,10 +18,7 @@ interface OrderData {
   id: string;
   items: OrderItem[];
   totalAmount: number;
-<<<<<<< HEAD
-=======
   fullName?: string;
->>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
   phoneNumber: string;
   deliveryLocation: {
     county: string;
@@ -46,20 +33,10 @@ const OrderSuccess = () => {
   const [order, setOrder] = useState<OrderData | null>(null);
 
   useEffect(() => {
-<<<<<<< HEAD
-    // Try to get order data from location state or localStorage
-=======
->>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
     const orderData = location.state?.order || JSON.parse(localStorage.getItem("last_order") || "null");
     if (orderData) {
       setOrder(orderData);
     }
-<<<<<<< HEAD
-    
-    window.scrollTo(0, 0);
-  }, [location]);
-
-=======
     window.scrollTo(0, 0);
   }, [location]);
 
@@ -68,7 +45,6 @@ const OrderSuccess = () => {
     toast.success("Phone number copied!");
   };
 
->>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
   if (!order) {
     return (
       <div className="min-h-screen flex flex-col">
@@ -84,17 +60,8 @@ const OrderSuccess = () => {
     );
   }
 
-<<<<<<< HEAD
-  const deliveryDate = new Date(order.createdAt + 3 * 24 * 60 * 60 * 1000).toLocaleDateString('en-KE', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-=======
   const sellerPhone = "+254742602101";
   const whatsappUrl = `https://wa.me/${sellerPhone.replace(/[^0-9]/g, "")}?text=Hello%20I%20have%20placed%20an%20order%20%23${order.id.slice(-8)}%20on%20FundiMart`;
->>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-zinc-950">
@@ -106,78 +73,6 @@ const OrderSuccess = () => {
             <div className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400" />
             </div>
-<<<<<<< HEAD
-            <h1 className="text-3xl font-bold text-foreground mb-2">Order Confirmed!</h1>
-            <p className="text-muted-foreground text-lg mb-4">
-              Thank you for your purchase. Your order <span className="font-mono font-bold text-primary">#{order.id.slice(-8)}</span> has been placed successfully.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4 mt-6">
-              <Link to="/track-order">
-                <Button variant="outline" className="gap-2">
-                  Track Order <Truck className="w-4 h-4" />
-                </Button>
-              </Link>
-              <Link to="/products">
-                <Button className="gap-2">
-                  Continue Shopping <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Delivery Info */}
-            <div className="md:col-span-2 space-y-8">
-              <section className="bg-white dark:bg-zinc-900 rounded-2xl shadow-sm border border-border p-6">
-                <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                  <Truck className="w-5 h-5 text-primary" /> Delivery Details
-                </h2>
-                
-                <div className="grid sm:grid-cols-2 gap-8">
-                  <div>
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <MapPin className="w-4 h-4" /> Delivery Address
-                    </h3>
-                    <p className="text-foreground font-medium">{order.deliveryLocation.address}</p>
-                    <p className="text-foreground">{order.deliveryLocation.town}, {order.deliveryLocation.county}</p>
-                    <p className="text-foreground mt-2">{order.phoneNumber}</p>
-                  </div>
-                  
-                  <div>
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <Calendar className="w-4 h-4" /> Estimated Delivery
-                    </h3>
-                    <p className="text-foreground font-bold text-lg">{deliveryDate}</p>
-                    <p className="text-sm text-muted-foreground mt-1">Between 8:00 AM - 6:00 PM</p>
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-8 border-t border-border">
-                  <h3 className="font-bold mb-4">How it works:</h3>
-                  <div className="space-y-4">
-                    <div className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 font-bold">1</div>
-                      <div>
-                        <p className="font-semibold text-foreground">Order Processing</p>
-                        <p className="text-sm text-muted-foreground">Our team is verifying your items and preparing them for dispatch from our warehouse.</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 font-bold">2</div>
-                      <div>
-                        <p className="font-semibold text-foreground">Assigned to Driver</p>
-                        <p className="text-sm text-muted-foreground">A professional logistics partner will be assigned to your delivery. You'll receive an SMS with their contact info.</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-4">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0 font-bold">3</div>
-                      <div>
-                        <p className="font-semibold text-foreground">Final Delivery</p>
-                        <p className="text-sm text-muted-foreground">The driver will call you when they are near your location to ensure someone is available to receive the materials.</p>
-                      </div>
-                    </div>
-                  </div>
-=======
             <h1 className="text-3xl font-bold text-foreground mb-2">Order Submitted!</h1>
             <p className="text-muted-foreground text-lg mb-4">
               Your order <span className="font-mono font-bold text-primary">#{order.id.slice(-8)}</span> has been placed successfully.
@@ -240,7 +135,6 @@ const OrderSuccess = () => {
                       Coordinate delivery date and location with the seller.
                     </li>
                   </ul>
->>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
                 </div>
               </section>
 
@@ -268,41 +162,6 @@ const OrderSuccess = () => {
             {/* Order Summary Side */}
             <div className="space-y-6">
               <div className="bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg shadow-primary/20">
-<<<<<<< HEAD
-                <h3 className="text-lg font-bold mb-4">Payment Summary</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-primary-foreground/80">
-                    <span>Subtotal</span>
-                    <span>KES {order.totalAmount.toLocaleString()}</span>
-                  </div>
-                  <div className="flex justify-between text-primary-foreground/80">
-                    <span>Delivery Fee</span>
-                    <span>KES 0</span>
-                  </div>
-                  <div className="pt-3 border-t border-primary-foreground/20 flex justify-between font-bold text-xl">
-                    <span>Total</span>
-                    <span>KES {order.totalAmount.toLocaleString()}</span>
-                  </div>
-                </div>
-                <div className="mt-6 p-3 bg-white/10 rounded-lg text-sm">
-                  <p className="font-semibold mb-1">Payment Method</p>
-                  <p>M-Pesa ({order.phoneNumber})</p>
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 border border-border shadow-sm">
-                <h3 className="font-bold mb-4">Need Help?</h3>
-                <p className="text-sm text-muted-foreground mb-4">If you have any questions about your order or delivery, please contact our support team.</p>
-                <div className="space-y-3">
-                  <a href="tel:+254742602101" className="flex items-center gap-3 text-sm font-medium text-primary hover:underline">
-                    +254 742 602 101
-                  </a>
-                  <a href="mailto:support@fundimart.co.ke" className="flex items-center gap-3 text-sm font-medium text-primary hover:underline">
-                    support@fundimart.co.ke
-                  </a>
-                </div>
-              </div>
-=======
                 <h3 className="text-lg font-bold mb-4">Order Summary</h3>
                 <div className="space-y-3">
                   <div className="flex justify-between text-primary-foreground/80">
@@ -329,7 +188,6 @@ const OrderSuccess = () => {
                   Continue Shopping <ArrowRight className="w-4 h-4" />
                 </Button>
               </Link>
->>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
             </div>
           </div>
         </div>

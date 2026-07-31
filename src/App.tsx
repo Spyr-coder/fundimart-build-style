@@ -41,8 +41,9 @@ const queryClient = new QueryClient();
 const API_URL = "https://jengamart-0.onrender.com";
 const AppContent = () => {
   useEffect(() => {
-    const handleThemeChange = (e: any) => {
-      const isDark = e.detail?.theme === "dark";
+    const handleThemeChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{ theme?: string }>;
+      const isDark = customEvent.detail?.theme === "dark";
       if (isDark) {
         document.documentElement.classList.add("dark");
       } else {
@@ -50,9 +51,9 @@ const AppContent = () => {
       }
     };
 
-    window.addEventListener("themeChange", handleThemeChange);
-    return () => window.removeEventListener("themeChange", handleThemeChange);
-  }, []);
+    window.addEventListener("themeChange", handleThemeChange as EventListener);
+    return () => window.removeEventListener("themeChange", handleThemeChange as EventListener);
+  }, [],);
 
   return (
     <QueryClientProvider client={queryClient}>

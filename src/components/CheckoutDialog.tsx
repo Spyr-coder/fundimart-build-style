@@ -64,7 +64,7 @@ const CheckoutDialog = ({ isOpen, onOpenChange }: CheckoutDialogProps) => {
       toast.success("Order submitted successfully!");
       onOpenChange(false);
       navigate("/order-success", { state: { order } });
-    } catch (err: any) {
+    } catch (err: unknown) {
       localStorage.setItem("last_order", JSON.stringify(order));
       clearCart();
       toast.success("Order placed (offline mode)!");
