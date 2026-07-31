@@ -1,3 +1,4 @@
+// src/components/admin/AdminLogin.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -14,44 +15,54 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
 
-    // Fallback allows local testing even if VITE_ADMIN_KEY isn't set in .env
-    const validKey = import.meta.env.VITE_ADMIN_KEY || 'admin123';
-
-    if (!adminKey) {
+    if (!adminKey.trim()) {
       setError('Please enter the admin key');
       setIsLoading(false);
       return;
     }
 
-    if (adminKey.trim() !== validKey) {
-      setError('Invalid admin key');
+    try {
+      // Point to your backend API URL
+      const API_URL = import.meta.env.VITE_API_URL || 'https://jengamart-0.onrender.com';
+
+      const response = await fetch(`${API_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ adminKey: adminKey.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Authentication failed');
+      }
+
+      // Store the secure backend token in localStorage
+      localStorage.setItem('admin_token', data.token);
+
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      }
+
+      navigate('/admin/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Failed to connect to authentication server');
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    // Store admin session in localStorage
-    localStorage.setItem('admin_authenticated', 'true');
-    
-    // Call the success callback if it exists
-    if (onLoginSuccess) {
-      onLoginSuccess();
-    }
-
-    // Navigate to admin dashboard
-    navigate('/admin/dashboard');
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-950 to-amber-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Card */}
         <div className="bg-slate-800 border-2 border-amber-700 rounded-lg shadow-2xl p-8">
-          {/* Header */}
           <div className="flex justify-center mb-6">
             <div className="p-4 bg-amber-900 rounded-full border border-amber-700">
               <Lock className="w-8 h-8 text-amber-400" />
@@ -61,7 +72,6 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
           <h1 className="text-2xl font-bold text-white text-center mb-2">Admin Access</h1>
           <p className="text-amber-100 text-center text-sm mb-8">Enter your admin key to access the dashboard</p>
 
-          {/* Error Message */}
           {error && (
             <div className="mb-6 p-4 bg-red-900/20 border-2 border-red-600 rounded-lg flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
@@ -71,7 +81,6 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="adminKey" className="block text-sm font-medium text-amber-100 mb-2">
@@ -97,19 +106,11 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
             </Button>
           </form>
 
-          {/* Footer */}
           <div className="mt-8 pt-6 border-t border-slate-700">
             <p className="text-slate-400 text-xs text-center">
-              This page is protected. Only authorized administrators can access the dashboard.
+              Protected area. Authenticated requests are signed via secure tokens.
             </p>
           </div>
-        </div>
-
-        {/* Security Notice */}
-        <div className="mt-6 p-4 bg-amber-900/30 border border-amber-700 rounded-lg">
-          <p className="text-amber-200 text-xs text-center">
-            🔒 This is a secure admin area. Keep your credentials confidential.
-          </p>
         </div>
       </div>
     </div>
