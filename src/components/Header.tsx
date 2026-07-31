@@ -47,7 +47,7 @@ const Header = () => {
             <Link to="/help" className="text-muted-foreground hover:text-primary flex items-center gap-1">
                 <HelpCircle className="w-3 h-3" /> Help Center
             </Link>
-            <Link to="/track-order" className="text-muted-foreground hover:text-primary">Track Order</Link>
+            
             {user && (
               <Link to="/logout" className="text-destructive font-medium hover:underline flex items-center gap-1">
                 <LogOut className="w-3 h-3" />

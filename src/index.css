@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* FundiMart Sophisticated Blue Design System
+   Light Blue to Navy Blue Gradients with Orange Accents
+*/
+
 @layer base {
   :root {
     /* Core colors */

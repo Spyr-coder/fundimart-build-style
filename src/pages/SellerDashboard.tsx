@@ -6,7 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+<<<<<<< HEAD
 import { Edit, Trash2, Plus, LogOut, Store, MapPin, Mail, Phone, BarChart3, Package, DollarSign, ShoppingBag, Wallet, CreditCard } from "lucide-react";
+=======
+import { Edit, Trash2, Plus, LogOut, Store, MapPin, Mail, Phone, BarChart3, Package, ShoppingBag, MessageCircle, CheckCircle, XCircle, Clock } from "lucide-react";
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
 import { ProductForm } from "@/components/ProductForm";
 import { useAuth } from "@/contexts/AuthContext";
 import { Product } from "@/types/product";
@@ -22,12 +26,16 @@ const SellerDashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   
+<<<<<<< HEAD
   // Stats
+=======
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
   const [stats, setStats] = useState({
     totalSales: 0,
     totalRevenue: 0,
     activeListings: 0,
     outOfStock: 0,
+<<<<<<< HEAD
     walletBalance: 0,
     commissionPaid: 0
   });
@@ -35,12 +43,19 @@ const SellerDashboard = () => {
   const [recentSales, setRecentSales] = useState<any[]>([]);
 
   // Redirect if not a seller
+=======
+  });
+  
+  const [orders, setOrders] = useState<any[]>([]);
+
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
   useEffect(() => {
     if (!isSeller()) {
       navigate("/auth");
     }
   }, [isSeller, navigate]);
 
+<<<<<<< HEAD
   // Load products and calculate stats from localStorage
   useEffect(() => {
     if (user?.id) {
@@ -55,11 +70,45 @@ const SellerDashboard = () => {
       let sellerSalesCount = 0;
       const sellerOrderItems: any[] = [];
       
+=======
+  const getAuthToken = () => {
+    return localStorage.getItem("token") || ""; 
+  };
+
+  const fetchSellerProducts = async () => {
+    if (!user?.id) return;
+    try {
+      const response = await fetch("http://localhost:5000/api/products?limit=100");
+      if (!response.ok) throw new Error("Failed to load DB products");
+      const result = await response.json();
+      const dbProducts = result.data || [];
+      setProducts(dbProducts);
+      setStats(prev => ({ ...prev, activeListings: dbProducts.length, outOfStock: dbProducts.filter((p: any) => p.stock === 0).length }));
+    } catch (error) {
+      console.warn("Backend offline, loading from localStorage:", error);
+      const allProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
+      const sellerProducts = allProducts.filter((p: Product) => p.sellerId === user.id);
+      setProducts(sellerProducts);
+      setStats(prev => ({ ...prev, activeListings: sellerProducts.length, outOfStock: sellerProducts.filter((p: Product) => p.stock === 0).length }));
+    }
+  };
+
+  useEffect(() => {
+    fetchSellerProducts();
+
+    if (user?.id) {
+      const allOrders = JSON.parse(localStorage.getItem("fundimart_orders") || "[]");
+      let sellerRevenue = 0;
+      let sellerSalesCount = 0;
+      const sellerOrders: any[] = [];
+
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
       allOrders.forEach((order: any) => {
         order.items.forEach((item: any) => {
           if (item.sellerId === user.id) {
             sellerRevenue += item.price * item.quantity;
             sellerSalesCount += item.quantity;
+<<<<<<< HEAD
             sellerOrderItems.push({
               id: order.id,
               productName: item.name,
@@ -87,15 +136,47 @@ const SellerDashboard = () => {
       });
       
       setRecentSales(sellerOrderItems.sort((a, b) => b.date - a.date).slice(0, 5));
+=======
+          }
+        });
+        const hasSellerItem = order.items?.some((item: any) => item.sellerId === user.id);
+        if (hasSellerItem) {
+          sellerOrders.push(order);
+        }
+      });
+
+      setStats(prev => ({
+        ...prev,
+        totalSales: sellerSalesCount,
+        totalRevenue: sellerRevenue,
+      }));
+
+      setOrders(sellerOrders.sort((a, b) => b.createdAt - a.createdAt));
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
     }
   }, [user]);
 
   const handleAddProduct = async (data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
     setIsLoading(true);
     try {
+<<<<<<< HEAD
       const newProduct: Product = {
         ...data,
         id: `product_${Date.now()}`,
+=======
+      const token = getAuthToken();
+      const response = await fetch("http://localhost:5000/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ name: data.name, price: data.price, unit: data.unit, stock: data.stock, category: data.category || "general", description: data.description || "" })
+      });
+
+      if (!response.ok) throw new Error("Failed to add product");
+
+      const newLocalProduct: Product = {
+        ...data,
+        id: `prod_${Date.now()}`,
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
         sellerId: user?.id || "",
         sellerName: user?.seller?.hardwareName || `${user?.firstName} ${user?.lastName}`,
         createdAt: Date.now(),
@@ -104,6 +185,7 @@ const SellerDashboard = () => {
       };
 
       const allProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
+<<<<<<< HEAD
       allProducts.push(newProduct);
       localStorage.setItem("fundimart_products", JSON.stringify(allProducts));
 
@@ -114,6 +196,16 @@ const SellerDashboard = () => {
       toast.success("Product added successfully!");
     } catch (error) {
       toast.error("Failed to add product");
+=======
+      allProducts.push(newLocalProduct);
+      localStorage.setItem("fundimart_products", JSON.stringify(allProducts));
+
+      toast.success("Product added successfully!");
+      setIsAddingProduct(false);
+      fetchSellerProducts();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to add product");
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
     } finally {
       setIsLoading(false);
     }
@@ -123,6 +215,7 @@ const SellerDashboard = () => {
     if (!editingProduct) return;
     setIsLoading(true);
     try {
+<<<<<<< HEAD
       const updatedProduct: Product = {
         ...editingProduct,
         ...data,
@@ -132,17 +225,38 @@ const SellerDashboard = () => {
         status: data.status || editingProduct.status,
         updatedAt: Date.now(),
       };
+=======
+      const token = getAuthToken();
+      const response = await fetch(`http://localhost:5000/api/products/${editingProduct.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) throw new Error("Failed to update product");
+
+      const updatedProduct: Product = { ...editingProduct, ...data, updatedAt: Date.now() };
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
       const allProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
       const index = allProducts.findIndex((p: Product) => p.id === editingProduct.id);
       if (index !== -1) {
         allProducts[index] = updatedProduct;
         localStorage.setItem("fundimart_products", JSON.stringify(allProducts));
       }
+<<<<<<< HEAD
       setProducts(products.map((p) => (p.id === editingProduct.id ? updatedProduct : p)));
       setEditingProduct(null);
       toast.success("Product updated successfully!");
     } catch (error) {
       toast.error("Failed to update product");
+=======
+
+      toast.success("Product updated successfully!");
+      setEditingProduct(null);
+      fetchSellerProducts();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update product");
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
     } finally {
       setIsLoading(false);
     }
@@ -152,6 +266,7 @@ const SellerDashboard = () => {
     if (!deletingProductId) return;
     setIsLoading(true);
     try {
+<<<<<<< HEAD
       const allProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
       const filtered = allProducts.filter((p: Product) => p.id !== deletingProductId);
       localStorage.setItem("fundimart_products", JSON.stringify(filtered));
@@ -159,6 +274,19 @@ const SellerDashboard = () => {
       setDeletingProductId(null);
       setStats(prev => ({ ...prev, activeListings: prev.activeListings - 1 }));
       alert("Product deleted successfully!");
+=======
+      const token = getAuthToken();
+      await fetch(`http://localhost:5000/api/products/${deletingProductId}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } });
+
+      const allProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
+      localStorage.setItem("fundimart_products", JSON.stringify(allProducts.filter((p: Product) => p.id !== deletingProductId)));
+
+      toast.success("Product deleted successfully!");
+      setDeletingProductId(null);
+      fetchSellerProducts();
+    } catch (error: any) {
+      toast.error(error.message || "Deletion failed");
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
     } finally {
       setIsLoading(false);
     }
@@ -169,8 +297,27 @@ const SellerDashboard = () => {
     navigate("/");
   };
 
+<<<<<<< HEAD
   const handleWithdraw = () => {
       alert(`Withdrawal request for KES ${stats.walletBalance.toLocaleString()} initiated. Funds will be sent to your registered M-Pesa number.`);
+=======
+  const updateOrderStatus = (orderId: string, newStatus: string) => {
+    const allOrders = JSON.parse(localStorage.getItem("fundimart_orders") || "[]");
+    const updated = allOrders.map((o: any) => o.id === orderId ? { ...o, status: newStatus } : o);
+    localStorage.setItem("fundimart_orders", JSON.stringify(updated));
+    setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
+    toast.success(`Order marked as ${newStatus}`);
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "accepted": return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Accepted</Badge>;
+      case "preparing": return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Preparing</Badge>;
+      case "delivered": return <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">Delivered</Badge>;
+      case "cancelled": return <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">Cancelled</Badge>;
+      default: return <Badge variant="outline">Pending</Badge>;
+    }
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
   };
 
   return (
@@ -192,6 +339,7 @@ const SellerDashboard = () => {
 
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+<<<<<<< HEAD
             <TabsList>
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="products">Products</TabsTrigger>
@@ -470,26 +618,291 @@ const SellerDashboard = () => {
       </main>
 
       {/* Add Product Dialog */}
+=======
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="orders">Orders</TabsTrigger>
+            <TabsTrigger value="products">Products</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <Card className="bg-primary/5 border-primary/20">
+                <CardHeader className="pb-2">
+                  <CardDescription className="flex items-center gap-2">
+                    <ShoppingBag className="h-4 w-4 text-primary" />
+                    Total Revenue
+                  </CardDescription>
+                  <CardTitle className="text-2xl">KES {stats.totalRevenue.toLocaleString()}</CardTitle>
+                </CardHeader>
+              </Card>
+              <Card className="bg-primary/5 border-primary/20">
+                <CardHeader className="pb-2">
+                  <CardDescription className="flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4 text-primary" />
+                    Total Sales
+                  </CardDescription>
+                  <CardTitle className="text-2xl">{stats.totalSales} items</CardTitle>
+                </CardHeader>
+              </Card>
+              <Card className="bg-primary/5 border-primary/20">
+                <CardHeader className="pb-2">
+                  <CardDescription className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-primary" />
+                    Active Products
+                  </CardDescription>
+                  <CardTitle className="text-2xl">{stats.activeListings}</CardTitle>
+                </CardHeader>
+              </Card>
+              <Card className={`${stats.outOfStock > 0 ? 'bg-red-500/5 border-red-500/20' : 'bg-primary/5 border-primary/20'}`}>
+                <CardHeader className="pb-2">
+                  <CardDescription className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-primary" />
+                    Out of Stock
+                  </CardDescription>
+                  <CardTitle className={`text-2xl ${stats.outOfStock > 0 ? 'text-red-500' : ''}`}>{stats.outOfStock}</CardTitle>
+                </CardHeader>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <Card className="lg:col-span-1">
+                <CardHeader>
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Recent Orders
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {orders.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-8">No orders yet.</p>
+                  ) : (
+                    <div className="space-y-4">
+                      {orders.slice(0, 5).map((order, i) => (
+                        <div key={i} className="flex items-center justify-between border-b border-border pb-2 last:border-0">
+                          <div>
+                            <p className="font-medium text-sm">Order #{order.id?.slice(-8)}</p>
+                            <p className="text-xs text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-sm">KES {(order.totalAmount || 0).toLocaleString()}</p>
+                            {getStatusBadge(order.status)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {user?.seller && (
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Store className="h-5 w-5" />
+                      Store Profile
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Store Name</p>
+                          <p className="text-lg font-semibold">{user.seller.hardwareName}</p>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span>{user.seller.location}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <span>{user.seller.firmEmail}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm">
+                          <Phone className="h-4 w-4 text-muted-foreground" />
+                          <span>{user.phone}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="orders" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Incoming Orders</CardTitle>
+                <CardDescription>Review and manage customer orders</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {orders.length === 0 ? (
+                  <p className="text-center py-12 text-muted-foreground">No incoming orders yet.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {orders.map((order) => (
+                      <Card key={order.id} className="border-border/50">
+                        <CardContent className="p-6">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                              <p className="font-bold text-lg">Order #{order.id?.slice(-8)}</p>
+                              <p className="text-sm text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()}</p>
+                              <div className="flex items-center gap-2 mt-2">
+                                <Phone className="w-4 h-4 text-muted-foreground" />
+                                <span className="text-sm">{order.phoneNumber}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <a
+                                href={`tel:${order.phoneNumber}`}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors text-sm font-medium"
+                              >
+                                <Phone className="w-4 h-4" /> Call
+                              </a>
+                              <a
+                                href={`https://wa.me/${order.phoneNumber?.replace(/[^0-9]/g, "")}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+                              >
+                                <MessageCircle className="w-4 h-4" /> WhatsApp
+                              </a>
+                            </div>
+                          </div>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <Button size="sm" variant="outline" className="border-green-500 text-green-600" onClick={() => updateOrderStatus(order.id, "accepted")}>
+                              <CheckCircle className="w-4 h-4 mr-1" /> Accept
+                            </Button>
+                            <Button size="sm" variant="outline" className="border-blue-500 text-blue-600" onClick={() => updateOrderStatus(order.id, "preparing")}>
+                              <Clock className="w-4 h-4 mr-1" /> Preparing
+                            </Button>
+                            <Button size="sm" variant="outline" className="border-green-500 text-green-600" onClick={() => updateOrderStatus(order.id, "delivered")}>
+                              <CheckCircle className="w-4 h-4 mr-1" /> Delivered
+                            </Button>
+                            <Button size="sm" variant="outline" className="border-red-500 text-red-600" onClick={() => updateOrderStatus(order.id, "cancelled")}>
+                              <XCircle className="w-4 h-4 mr-1" /> Reject
+                            </Button>
+                          </div>
+                          {order.status && (
+                            <div className="mt-3">
+                              {getStatusBadge(order.status)}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="products" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">Manage Inventory</h2>
+                <p className="text-muted-foreground mt-1">{products.length} product(s) in your catalog</p>
+              </div>
+              <Button onClick={() => setIsAddingProduct(true)} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                Add Product
+              </Button>
+            </div>
+
+            {products.length === 0 ? (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">No products yet. Start by adding your first product!</p>
+                  <Button onClick={() => setIsAddingProduct(true)} className="flex items-center gap-2 mx-auto">
+                    <Plus className="h-4 w-4" />
+                    Add Your First Product
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {products.map((product) => (
+                  <Card key={product.id} className="flex flex-col overflow-hidden hover:shadow-lg transition-shadow border-border/50">
+                    <div className="h-48 bg-muted overflow-hidden relative">
+                      <img
+                        src={product.photos?.[0] || "https://via.placeholder.com/400x300?text=" + encodeURIComponent(product.name)}
+                        alt={product.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform"
+                      />
+                      {product.stock === 0 && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                          <Badge variant="destructive" className="text-sm px-3 py-1">OUT OF STOCK</Badge>
+                        </div>
+                      )}
+                    </div>
+                    <CardContent className="flex-1 flex flex-col pt-4">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <h3 className="font-semibold text-lg line-clamp-2">{product.name}</h3>
+                        <Badge variant="secondary">{product.category}</Badge>
+                      </div>
+                      <p className="text-2xl font-bold text-primary mb-2">KES {product.price.toLocaleString()}</p>
+                      <div className="grid grid-cols-2 gap-4 text-sm mb-4">
+                        <div>
+                          <p className="text-muted-foreground">Current Stock</p>
+                          <p className={`font-semibold ${product.stock < 5 ? 'text-red-500' : ''}`}>{product.stock} units</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Quality</p>
+                          <p className="font-semibold">{product.quality || "Standard"}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 mt-auto pt-4 border-t border-border">
+                        <Button variant="outline" size="sm" className="flex-1 flex items-center gap-2" onClick={() => setEditingProduct(product)}>
+                          <Edit className="h-4 w-4" /> Edit
+                        </Button>
+                        <Button variant="destructive" size="sm" className="flex-1 flex items-center gap-2" onClick={() => setDeletingProductId(product.id)}>
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+      </main>
+
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
       <Dialog open={isAddingProduct} onOpenChange={setIsAddingProduct}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Product</DialogTitle>
+<<<<<<< HEAD
             <DialogDescription>
               Fill in the details for your new product
             </DialogDescription>
+=======
+            <DialogDescription>Fill in the details for your new product</DialogDescription>
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
           </DialogHeader>
           <ProductForm onSubmit={handleAddProduct} isLoading={isLoading} />
         </DialogContent>
       </Dialog>
 
+<<<<<<< HEAD
       {/* Edit Product Dialog */}
+=======
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
       <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Product</DialogTitle>
+<<<<<<< HEAD
             <DialogDescription>
               Update the details for your product
             </DialogDescription>
+=======
+            <DialogDescription>Update the details for your product</DialogDescription>
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
           </DialogHeader>
           {editingProduct && (
             <ProductForm initialData={editingProduct} onSubmit={handleUpdateProduct} isLoading={isLoading} />
@@ -497,6 +910,7 @@ const SellerDashboard = () => {
         </DialogContent>
       </Dialog>
 
+<<<<<<< HEAD
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deletingProductId} onOpenChange={() => setDeletingProductId(null)}>
         <AlertDialogContent>
@@ -513,6 +927,17 @@ const SellerDashboard = () => {
               disabled={isLoading}
               className="bg-red-600 hover:bg-red-700"
             >
+=======
+      <AlertDialog open={!!deletingProductId} onOpenChange={() => setDeletingProductId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <DialogTitle>Delete Product</DialogTitle>
+            <AlertDialogDescription>Are you sure you want to delete this product? This action cannot be undone.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3 justify-end">
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteProduct} disabled={isLoading} className="bg-red-600 hover:bg-red-700">
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
               {isLoading ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </div>

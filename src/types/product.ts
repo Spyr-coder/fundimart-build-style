@@ -35,6 +35,12 @@ export interface Product {
   status: string;
   createdAt: number;
   updatedAt: number;
+<<<<<<< HEAD
+=======
+  // Missing properties added to clear out TypeScript compilation blocks:
+  rating?: number;
+  reviews?: number;
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
 }
 
 export interface Review {
@@ -45,4 +51,8 @@ export interface Review {
   rating: number;
   comment: string;
   createdAt: number;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8

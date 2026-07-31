@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 export interface CartItem {
   id: string;
@@ -22,7 +22,21 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  // Initialize from localStorage safely to protect against variable mapping crashes
+  const [items, setItems] = useState<CartItem[]>(() => {
+    try {
+      const stored = localStorage.getItem("fundimart_cart");
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error("Error reading cart from localStorage:", error);
+      return [];
+    }
+  });
+
+  // Sync state changes with localStorage automatically
+  useEffect(() => {
+    localStorage.setItem("fundimart_cart", JSON.stringify(items));
+  }, [items]);
 
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
@@ -50,7 +64,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     );
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    setItems([]);
+    localStorage.removeItem("fundimart_cart");
+  };
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);

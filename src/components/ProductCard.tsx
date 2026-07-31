@@ -3,8 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom"; // Import useNavigate and Link
-import { useAuth } from "@/contexts/AuthContext"; // Import useAuth
+import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   id: string;
@@ -30,8 +29,6 @@ const ProductCard = ({
   sellerId = "static-seller",
 }: ProductCardProps) => {
   const { addToCart } = useCart();
-  const { isAuthenticated } = useAuth(); // Get isAuthenticated status
-  const navigate = useNavigate(); // Initialize useNavigate
   const [isFavorited, setIsFavorited] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {

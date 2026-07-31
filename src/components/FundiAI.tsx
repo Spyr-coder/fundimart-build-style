@@ -3,31 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageSquare, Send, X, Bot, User, Loader2 } from "lucide-react";
+import { MessageSquare, Send, X, Bot, Loader2 } from "lucide-react";
 
-const SYSTEM_PROMPT = `You are Fundi-AI, the helpful assistant for FundiMart.
-FundiMart is a leading construction materials marketplace in Kenya.
-Your goal is to help users with questions about the website, system, services, and construction materials.
-Key Information:
-- Mission: Quality construction materials accessible to everyone in Kenya.
-- Offerings: Cement, power tools, building materials, etc.
-- New Tools: 
-  1. Project Planner (/planner): Helps users estimate material requirements and total project costs.
-  2. Product Comparison (/compare): Allows side-by-side comparison of products based on price and quality.
-- Services: Wide selection, competitive pricing, fast delivery across Kenya, expert support, quality assurance.
-- Workflow: 
-  1. Product Exploration (browse, filter).
-  2. Seller Verification (rigorous process).
-  3. Easy Order Placement (Secure checkout, M-Pesa supported).
-  4. Fast & Reliable Shipping (Real-time tracking).
-  5. Reviews & Feedback.
-- Contact: info@fundimart.co.ke, +254 (0) XXX XXX XXX.
-- Founders/Team: Industry experts, logistics professionals.
-Be polite, professional, and helpful. If you don't know something, ask the user to contact support at info@fundimart.co.ke.`;
+// Define structured message interface with optional recommended categories
+interface Message {
+  role: 'user' | 'bot';
+  text: string;
+  recommendedCategories?: string[];
+}
 
 export default function FundiAI() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<{ role: 'user' | 'bot', text: string }[]>([
+  const [messages, setMessages] = useState<Message[]>([
     { role: 'bot', text: "Hello! I'm Fundi-AI. How can I help you with your construction needs today?" }
   ]);
   const [input, setInput] = useState('');
@@ -39,24 +26,60 @@ export default function FundiAI() {
     if (scrollContainer) {
       scrollContainer.scrollTop = scrollContainer.scrollHeight;
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, isLoading]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
     const userMessage = input.trim();
+    
+    // 1. Append user's message locally
     setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
     setInput('');
     setIsLoading(true);
 
-    // Simulate API call delay
-    setTimeout(() => {
+    try {
+      // 2. Format local state to match backend's chatHistory format
+      // mapped as: { sender: "user" | "bot", text: string }
+      const formattedHistory = messages.map(msg => ({
+        sender: msg.role === 'user' ? 'user' : 'bot',
+        text: msg.text
+      }));
+
+      // 3. Make the API request to your verified Node/Express server
+      const response = await fetch("http://localhost:5000/api/ai/estimate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          chatHistory: formattedHistory
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to communicate with AI server.");
+      }
+
+      const data = await response.json();
+
+      // 4. Append live Gemini structured data
       setMessages(prev => [...prev, { 
         role: 'bot', 
-        text: "Thank you for your message! I am currently in demo mode. For real-time assistance, please contact our support team at info@fundimart.co.ke or call +254 (0) XXX XXX XXX." 
+        text: data.replyText,
+        recommendedCategories: data.recommendedCategories || []
       }]);
+
+    } catch (error) {
+      console.error("AI Communication Error:", error);
+      setMessages(prev => [...prev, { 
+        role: 'bot', 
+        text: "Sorry, I ran into an error connecting to my server. Please verify your backend is running on port 5000!" 
+      }]);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -86,7 +109,7 @@ export default function FundiAI() {
             <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
               <div className="space-y-4">
                 {messages.map((m, i) => (
-                  <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div key={i} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
                     <div className={`max-w-[85%] p-3 rounded-2xl shadow-sm ${
                       m.role === 'user' 
                       ? 'bg-primary text-primary-foreground rounded-tr-none' 
@@ -94,6 +117,24 @@ export default function FundiAI() {
                     }`}>
                       <p className="text-sm whitespace-pre-wrap leading-relaxed">{m.text}</p>
                     </div>
+
+                    {/* Interactive Recommendations UI */}
+                    {m.recommendedCategories && m.recommendedCategories.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5 max-w-[85%]">
+                        {m.recommendedCategories.map((cat, categoryIdx) => (
+                          <button
+                            key={categoryIdx}
+                            onClick={() => {
+                              // Directs user to category page filtering on target device
+                              window.location.href = `/products?category=${encodeURIComponent(cat)}`;
+                            }}
+                            className="text-[11px] font-medium bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-primary-foreground rounded-full px-2.5 py-1 transition-all duration-200"
+                          >
+                            Search {cat} ↗
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
                 {isLoading && (

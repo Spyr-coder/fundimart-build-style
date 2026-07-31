@@ -9,6 +9,7 @@ export interface Product {
   badge?: string;
   category: string;
   description: string;
+<<<<<<< HEAD
 }
 
 export const products: Product[] = [
@@ -270,4 +271,26 @@ export const categories = [
   { slug: "plumbing-materials", name: "Plumbing Materials", count: "6 items" },
   { slug: "electrical-materials", name: "Electrical Materials", count: "2 items" },
   { slug: "tiles-and-finishing-materials", name: "Tiles and Finishing Materials", count: "1 item" },
+=======
+  photos?: string[];
+  quality?: string;
+  sellerId?: string;
+  sellerName?: string;
+  sellerContact?: string;
+  warehouseLocation?: string;
+}
+
+// Hardcoded mock items completely removed for the live production database environment.
+export const products: Product[] = [];
+
+export const categories = [
+  { slug: "cement", name: "Cement", count: "0 items" },
+  { slug: "steel", name: "Steel", count: "0 items" },
+  { slug: "timber", name: "Timber", count: "0 items" },
+  { slug: "sand-and-ballast", name: "Sand and Ballast", count: "0 items" },
+  { slug: "roofing-materials", name: "Roofing Materials", count: "0 items" },
+  { slug: "plumbing-materials", name: "Plumbing Materials", count: "0 items" },
+  { slug: "electrical-materials", name: "Electrical Materials", count: "0 items" },
+  { slug: "tiles-and-finishing-materials", name: "Tiles and Finishing Materials", count: "0 items" },
+>>>>>>> b7d4a3936449421f9ca19730c2603ba6e0185db8
 ];
