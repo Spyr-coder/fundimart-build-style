@@ -19,7 +19,8 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
     setError('');
     setIsLoading(true);
 
-    const validKey = import.meta.env.VITE_ADMIN_KEY;
+    // Fallback allows local testing even if VITE_ADMIN_KEY isn't set in .env
+    const validKey = import.meta.env.VITE_ADMIN_KEY || 'admin123';
 
     if (!adminKey) {
       setError('Please enter the admin key');
@@ -27,7 +28,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
       return;
     }
 
-    if (adminKey !== validKey) {
+    if (adminKey.trim() !== validKey) {
       setError('Invalid admin key');
       setIsLoading(false);
       return;
@@ -43,7 +44,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
 
     // Navigate to admin dashboard
     navigate('/admin/dashboard');
-  }; // Fixed: All logic is now correctly inside the handleSubmit function
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-950 to-amber-800 flex items-center justify-center p-4">
