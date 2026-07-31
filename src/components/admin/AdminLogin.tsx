@@ -1,4 +1,3 @@
-// src/components/admin/AdminLogin.tsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -20,14 +19,15 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
     setError('');
     setIsLoading(true);
 
-    if (!adminKey.trim()) {
+    const cleanKey = adminKey.trim().replace(/^["']|["']$/g, '');
+
+    if (!cleanKey) {
       setError('Please enter the admin key');
       setIsLoading(false);
       return;
     }
 
     try {
-      // Point to your backend API URL
       const API_URL = import.meta.env.VITE_API_URL || 'https://jengamart-0.onrender.com';
 
       const response = await fetch(`${API_URL}/api/admin/login`, {
@@ -35,7 +35,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ adminKey: adminKey.trim() }),
+        body: JSON.stringify({ adminKey: cleanKey }),
       });
 
       const data = await response.json();
@@ -44,13 +44,19 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
         throw new Error(data.message || 'Authentication failed');
       }
 
-      // Store the secure backend token in localStorage
-      localStorage.setItem('admin_token', data.token);
+      // Store token & auth state across all standard local storage key names
+      if (data.token) {
+        localStorage.setItem('admin_token', data.token);
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('admin_authenticated', 'true');
+        localStorage.setItem('isAuthenticated', 'true');
+      }
 
       if (onLoginSuccess) {
         onLoginSuccess();
       }
 
+      // Navigate within the same origin router
       navigate('/admin/dashboard');
     } catch (err: any) {
       setError(err.message || 'Failed to connect to authentication server');
