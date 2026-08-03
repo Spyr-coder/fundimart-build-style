@@ -2,24 +2,35 @@ import { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { Product } from "@/types/product";
+import { Product, User } from "@/types/product";
 import { useNavigate } from "react-router-dom";
 import { placeholderImage } from "@/lib/utils";
 
+interface DisplayProduct {
+  id: string;
+  image: string;
+  name: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  badge?: string;
+  sellerId: string;
+}
+
 const FeaturedProducts = () => {
-  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<DisplayProduct[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     // Hardcoded static references removed to transition to live seller postings only
-    let displayProducts = [];
+    let displayProducts: DisplayProduct[] = [];
     try {
-      const storedProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
-      const allUsers = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
+      const storedProducts: Product[] = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
+      const allUsers: User[] = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
       
       const formattedStored = storedProducts
         .filter((p: Product) => {
-          const seller = allUsers.find((u: any) => u.id === p.sellerId)?.seller;
+          const seller = allUsers.find((u) => u.id === p.sellerId)?.seller;
           return seller?.isVerified;
         })
         .map((p: Product) => ({

@@ -6,12 +6,23 @@ import ProductCard from "@/components/ProductCard";
 import { categories } from "@/data/products";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Product } from "@/types/product";
+import { Product, User } from "@/types/product";
 import { placeholderImage } from "@/lib/utils";
+
+interface DisplayProduct {
+  id: string;
+  image: string;
+  name: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  badge?: string;
+  sellerId: string;
+}
 
 const Category = () => {
   const { slug } = useParams<{ slug: string }>();
-  const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<DisplayProduct[]>([]);
   const category = categories.find((c) => c.slug === slug);
 
   useEffect(() => {
@@ -21,14 +32,14 @@ const Category = () => {
     const normalize = (s: string) => s.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
     const categorySlug = normalize(category.name);
 
-    let displayProducts = [];
+    let displayProducts: DisplayProduct[] = [];
     try {
-      const storedProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
-      const allUsers = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
+      const storedProducts: Product[] = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
+      const allUsers: User[] = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
       
       const filteredStored = storedProducts
         .filter((p: Product) => {
-          const seller = allUsers.find((u: any) => u.id === p.sellerId)?.seller;
+          const seller = allUsers.find((u) => u.id === p.sellerId)?.seller;
           const matchesCategory = normalize(p.category) === slug || normalize(p.category) === categorySlug;
           return matchesCategory && seller?.isVerified;
         })

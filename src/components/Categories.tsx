@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { categoryItems } from "@/data/categories";
 import { products as staticProducts } from "@/data/products";
 import { useState, useEffect } from "react";
-import { Product } from "@/types/product";
+import { Product, User } from "@/types/product";
 
 const Categories = () => {
   const [counts, setCounts] = useState<Record<string, number>>({});
@@ -18,12 +18,12 @@ const Categories = () => {
     });
 
     // Count stored products (only from verified sellers)
-    const storedProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
-    const allUsers = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
+    const storedProducts: Product[] = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
+    const allUsers: User[] = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
     
     const dynamicCounts: Record<string, number> = {};
     storedProducts.forEach((p: Product) => {
-      const seller = allUsers.find((u: any) => u.id === p.sellerId)?.seller;
+      const seller = allUsers.find((u) => u.id === p.sellerId)?.seller;
       if (seller?.isVerified) {
         const slug = normalize(p.category);
         dynamicCounts[slug] = (dynamicCounts[slug] || 0) + 1;

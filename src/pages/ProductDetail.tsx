@@ -12,19 +12,35 @@ import { placeholderImage } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { Product } from "@/types/product";
 
+interface DisplayProduct {
+  id: string;
+  image: string;
+  name: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  badge?: string;
+  sellerName: string;
+  sellerId: string;
+  sellerContact?: string;
+  warehouseLocation?: string;
+  category: string;
+  description?: string;
+}
+
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [isFavorited, setIsFavorited] = useState(false);
-  const [product, setProduct] = useState<any>(null);
-  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [product, setProduct] = useState<DisplayProduct | null>(null);
+  const [allProducts, setAllProducts] = useState<DisplayProduct[]>([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
     
     // Only load authentic items from dynamic inventory configurations
-    const storedProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
+    const storedProducts: Product[] = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
     const formattedStored = storedProducts.map((p: Product) => ({
       id: p.id,
       image: p.photos?.[0] || placeholderImage(p.name),
@@ -43,14 +59,17 @@ const ProductDetail = () => {
 
     setAllProducts(formattedStored);
 
-    const found = formattedStored.find((p: any) => p.id === id);
+    const found = formattedStored.find((p) => p.id === id);
     
     if (found) {
-      const allReviews = JSON.parse(localStorage.getItem("fundimart_reviews") || "[]");
-      const productReviews = allReviews.filter((r: any) => r.productId === found.id);
+      const allReviews = JSON.parse(localStorage.getItem("fundimart_reviews") || "[]") as Array<{
+        productId: string;
+        rating: number;
+      }>;
+      const productReviews = allReviews.filter((r) => r.productId === found.id);
       
       if (productReviews.length > 0) {
-        const avgRating = productReviews.reduce((acc: number, r: any) => acc + r.rating, 0) / productReviews.length;
+        const avgRating = productReviews.reduce((acc: number, r) => acc + r.rating, 0) / productReviews.length;
         found.rating = parseFloat(avgRating.toFixed(1));
         found.reviews = productReviews.length;
       }

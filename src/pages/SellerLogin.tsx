@@ -35,8 +35,8 @@ const SellerLogin = () => {
 
       toast.success("Welcome back! Accessing seller dashboard...");
       navigate("/seller/dashboard");
-    } catch (error: any) {
-      toast.error(error.message || "Invalid credentials. Please try again.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Invalid credentials. Please try again.");
     } finally {
       setIsLoading(false);
     }

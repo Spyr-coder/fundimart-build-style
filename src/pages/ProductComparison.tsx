@@ -7,23 +7,36 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Star, ShieldCheck, Truck, Scale, X, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
-import { Product } from "@/types/product";
+import { Product, User } from "@/types/product";
 import { placeholderImage } from "@/lib/utils";
+
+interface ComparisonProduct {
+  id: string;
+  image: string;
+  name: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  badge?: string;
+  sellerId: string;
+  category: string;
+  description?: string;
+}
 
 export default function ProductComparison() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<ComparisonProduct[]>([]);
   const { addToCart } = useCart();
 
   useEffect(() => {
-    let dynamicProducts = [];
+    let dynamicProducts: ComparisonProduct[] = [];
     try {
-      const storedProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
-      const allUsers = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
+      const storedProducts: Product[] = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
+      const allUsers: User[] = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
 
       dynamicProducts = storedProducts
         .filter((p: Product) => {
-          const seller = allUsers.find((u: any) => u.id === p.sellerId)?.seller;
+          const seller = allUsers.find((u) => u.id === p.sellerId)?.seller;
           return seller?.isVerified;
         })
         .map((p: Product) => ({
@@ -44,7 +57,9 @@ export default function ProductComparison() {
     setAllProducts(dynamicProducts);
   }, []);
 
-  const selectedProducts = selectedIds.map(id => allProducts.find(p => p.id === id)).filter(Boolean);
+  const selectedProducts = selectedIds
+    .map(id => allProducts.find(p => p.id === id))
+    .filter((p): p is ComparisonProduct => Boolean(p));
 
   const addProduct = (id: string) => {
     if (selectedIds.length >= 4) {
@@ -62,7 +77,7 @@ export default function ProductComparison() {
     setSelectedIds(selectedIds.filter(pId => pId !== id));
   };
 
-  const handleAddToCart = (product: any) => {
+  const handleAddToCart = (product: ComparisonProduct) => {
     addToCart({
       id: product.id,
       name: product.name,
@@ -115,7 +130,7 @@ export default function ProductComparison() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {selectedProducts.map((product: any) => (
+            {selectedProducts.map((product) => (
               <Card key={product.id} className="relative group overflow-hidden border-2 border-transparent hover:border-primary/20 transition-all duration-300">
                 <Button 
                   variant="destructive" 

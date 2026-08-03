@@ -27,10 +27,12 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
 
     // Check if user has purchased the product
     if (user) {
-      const allOrders = JSON.parse(localStorage.getItem("fundimart_orders") || "[]");
+      const allOrders = JSON.parse(localStorage.getItem("fundimart_orders") || "[]") as Array<{
+        items: Array<{ id: string }>;
+      }>;
       // Check if any order contains this product
-      const purchased = allOrders.some((order: any) => 
-        order.items.some((item: any) => item.id === productId)
+      const purchased = allOrders.some((order) => 
+        order.items.some((item) => item.id === productId)
       );
       setHasPurchased(purchased);
     }
