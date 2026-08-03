@@ -4,9 +4,34 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Loader2 } from "lucide-react";
 import { placeholderImage } from "@/lib/utils";
+import { Product, User } from "@/types/product";
+
+interface DisplayProduct {
+  id: string;
+  image: string;
+  name: string;
+  price: number;
+  rating: number;
+  reviews: number;
+  badge?: string;
+  category?: string;
+  unit?: string;
+  stock?: number;
+  description?: string;
+}
+
+interface ApiProduct {
+  id: string;
+  name: string;
+  price: number;
+  category: string;
+  unit?: string;
+  stock: number;
+  description?: string;
+}
 
 export default function Products() {
-  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<DisplayProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -21,10 +46,10 @@ export default function Products() {
         const result = await response.json();
 
         // 2. Safely extract the array from `result.data` (matching your controller's res.json)
-        const productsArray = result.data || [];
+        const productsArray = (result.data || []) as ApiProduct[];
 
         // 3. Map the fields to match what your frontend ProductCard expects
-        const formattedProducts = productsArray.map((p: any) => ({
+        const formattedProducts = productsArray.map((p) => ({
           id: p.id,
           name: p.name,
           price: p.price,
@@ -46,15 +71,15 @@ export default function Products() {
         
         // 4. Robust fallback to localStorage if backend is offline during development
         try {
-          const storedProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
-          const allUsers = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
+          const storedProducts: Product[] = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
+          const allUsers: User[] = JSON.parse(localStorage.getItem("fundimart_users") || "[]");
 
           const formattedStored = storedProducts
-            .filter((p: any) => {
-              const seller = allUsers.find((u: any) => u.id === p.sellerId)?.seller;
+            .filter((p: Product) => {
+              const seller = allUsers.find((u) => u.id === p.sellerId)?.seller;
               return seller ? seller.isVerified : true; 
             })
-            .map((p: any) => ({
+            .map((p: Product) => ({
               id: p.id,
               image: p.photos?.[0] || placeholderImage(p.name),
               name: p.name,

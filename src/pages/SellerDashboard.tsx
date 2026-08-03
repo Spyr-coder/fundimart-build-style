@@ -13,6 +13,19 @@ import { Product } from "@/types/product";
 import { toast } from "sonner";
 import { placeholderImage } from "@/lib/utils";
 
+interface SellerOrder {
+  id: string;
+  createdAt: number;
+  phoneNumber?: string;
+  status?: string;
+  items: Array<{
+    id: string;
+    sellerId?: string;
+    price: number;
+    quantity: number;
+  }>;
+}
+
 const SellerDashboard = () => {
   const navigate = useNavigate();
   const { user, logout, isSeller } = useAuth();
@@ -30,7 +43,7 @@ const SellerDashboard = () => {
     outOfStock: 0,
   });
   
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<SellerOrder[]>([]);
 
   useEffect(() => {
     if (!isSeller()) {
@@ -48,9 +61,9 @@ const SellerDashboard = () => {
       const response = await fetch("/api/products?limit=100");
       if (!response.ok) throw new Error("Failed to load DB products");
       const result = await response.json();
-      const dbProducts = (result.data || []).filter((p: any) => p.sellerId === user.id);
+      const dbProducts = ((result.data || []) as Product[]).filter((p) => p.sellerId === user.id);
       setProducts(dbProducts);
-      setStats(prev => ({ ...prev, activeListings: dbProducts.length, outOfStock: dbProducts.filter((p: any) => p.stock === 0).length }));
+      setStats(prev => ({ ...prev, activeListings: dbProducts.length, outOfStock: dbProducts.filter((p) => p.stock === 0).length }));
     } catch (error) {
       console.warn("Backend offline, loading from localStorage:", error);
       const allProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
@@ -64,19 +77,19 @@ const SellerDashboard = () => {
     fetchSellerProducts();
 
     if (user?.id) {
-      const allOrders = JSON.parse(localStorage.getItem("fundimart_orders") || "[]");
+      const allOrders: SellerOrder[] = JSON.parse(localStorage.getItem("fundimart_orders") || "[]");
       let sellerRevenue = 0;
       let sellerSalesCount = 0;
-      const sellerOrders: any[] = [];
+      const sellerOrders: SellerOrder[] = [];
 
-      allOrders.forEach((order: any) => {
-        order.items.forEach((item: any) => {
+      allOrders.forEach((order) => {
+        order.items.forEach((item) => {
           if (item.sellerId === user.id) {
             sellerRevenue += item.price * item.quantity;
             sellerSalesCount += item.quantity;
           }
         });
-        const hasSellerItem = order.items?.some((item: any) => item.sellerId === user.id);
+        const hasSellerItem = order.items?.some((item) => item.sellerId === user.id);
         if (hasSellerItem) {
           sellerOrders.push(order);
         }
@@ -121,8 +134,8 @@ const SellerDashboard = () => {
       toast.success("Product added successfully!");
       setIsAddingProduct(false);
       fetchSellerProducts();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to add product");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to add product");
     } finally {
       setIsLoading(false);
     }
@@ -152,8 +165,8 @@ const SellerDashboard = () => {
       toast.success("Product updated successfully!");
       setEditingProduct(null);
       fetchSellerProducts();
-    } catch (error: any) {
-      toast.error(error.message || "Failed to update product");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update product");
     } finally {
       setIsLoading(false);
     }
@@ -172,8 +185,8 @@ const SellerDashboard = () => {
       toast.success("Product deleted successfully!");
       setDeletingProductId(null);
       fetchSellerProducts();
-    } catch (error: any) {
-      toast.error(error.message || "Deletion failed");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Deletion failed");
     } finally {
       setIsLoading(false);
     }
@@ -185,8 +198,8 @@ const SellerDashboard = () => {
   };
 
   const updateOrderStatus = (orderId: string, newStatus: string) => {
-    const allOrders = JSON.parse(localStorage.getItem("fundimart_orders") || "[]");
-    const updated = allOrders.map((o: any) => o.id === orderId ? { ...o, status: newStatus } : o);
+    const allOrders: SellerOrder[] = JSON.parse(localStorage.getItem("fundimart_orders") || "[]");
+    const updated = allOrders.map((o) => o.id === orderId ? { ...o, status: newStatus } : o);
     localStorage.setItem("fundimart_orders", JSON.stringify(updated));
     setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o));
     toast.success(`Order marked as ${newStatus}`);

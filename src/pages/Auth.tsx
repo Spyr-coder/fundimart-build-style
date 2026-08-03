@@ -40,8 +40,8 @@ const Auth = () => {
       await login(email, password);
       toast.success("Login successful!");
       navigate("/");
-    } catch (err: any) {
-      setError(err.message || "Login failed");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -96,8 +96,8 @@ const Auth = () => {
         toast.success("Seller account created! Welcome to the marketplace.");
         navigate("/seller/dashboard");
       }
-    } catch (err: any) {
-      setError(err.message || "Registration failed");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
       setIsLoading(false);
     }
@@ -136,7 +136,7 @@ const Auth = () => {
                 {error}
               </div>
             )}
-            <Tabs defaultValue={searchParams.get("tab") === "signup" ? "register" : "login"} className="w-full">
+            <Tabs defaultValue={["signup", "register"].includes(searchParams.get("tab") ?? "") ? "register" : "login"} className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="login">Login</TabsTrigger>
                 <TabsTrigger value="register">Register</TabsTrigger>

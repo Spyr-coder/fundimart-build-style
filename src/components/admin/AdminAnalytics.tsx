@@ -22,6 +22,13 @@ import { Product } from '@/types/product';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
+interface StoredOrder {
+  id: string;
+  totalAmount: number;
+  createdAt: number;
+  phoneNumber?: string;
+}
+
 export default function AdminAnalytics() {
   const [stats, setStats] = useState({
     totalRevenue: 0,
@@ -30,16 +37,16 @@ export default function AdminAnalytics() {
     avgOrderValue: 0
   });
 
-  const [categoryData, setCategoryData] = useState<any[]>([]);
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [categoryData, setCategoryData] = useState<Array<{ name: string; value: number }>>([]);
+  const [recentOrders, setRecentOrders] = useState<StoredOrder[]>([]);
 
   useEffect(() => {
     // Load Data
     const allProducts: Product[] = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
-    const allOrders = JSON.parse(localStorage.getItem("fundimart_orders") || "[]");
+    const allOrders: StoredOrder[] = JSON.parse(localStorage.getItem("fundimart_orders") || "[]");
     
     // Calculate Stats
-    const totalRev = allOrders.reduce((sum: number, order: any) => sum + order.totalAmount, 0);
+    const totalRev = allOrders.reduce((sum: number, order) => sum + order.totalAmount, 0);
     const totalOrd = allOrders.length;
     const avgVal = totalOrd > 0 ? totalRev / totalOrd : 0;
     
@@ -62,7 +69,7 @@ export default function AdminAnalytics() {
     }));
     
     setCategoryData(formattedCatData);
-    setRecentOrders(allOrders.sort((a: any, b: any) => b.createdAt - a.createdAt).slice(0, 5));
+    setRecentOrders(allOrders.sort((a, b) => b.createdAt - a.createdAt).slice(0, 5));
 
   }, []);
 
