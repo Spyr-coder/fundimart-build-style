@@ -31,12 +31,10 @@ const Auth = () => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-
     try {
       const formData = new FormData(e.currentTarget);
       const email = formData.get("login-email") as string;
       const password = formData.get("login-password") as string;
-
       await login(email, password);
       toast.success("Login successful!");
       navigate("/");
@@ -154,7 +152,6 @@ const Auth = () => {
                     </Button>
                   </Link>
                 </div>
-
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="login-email">Email</Label>
@@ -170,7 +167,6 @@ const Auth = () => {
                       />
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="login-password">Password</Label>
                     <div className="relative">
@@ -192,11 +188,9 @@ const Auth = () => {
                       </button>
                     </div>
                   </div>
-
                   <Button type="submit" className="w-full h-11" disabled={isLoading}>
                     {isLoading ? "Signing in..." : "Sign In"}
                   </Button>
-
                   <div className="relative my-6">
                     <div className="absolute inset-0 flex items-center">
                       <span className="w-full border-t border-border" />
@@ -205,7 +199,6 @@ const Auth = () => {
                       <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
                     </div>
                   </div>
-
                   <Button 
                     type="button" 
                     variant="outline" 
@@ -285,7 +278,6 @@ const Auth = () => {
                         />
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label htmlFor="register-email">Email</Label>
                       <div className="relative">
@@ -300,7 +292,6 @@ const Auth = () => {
                         />
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label htmlFor="phone">Phone Number</Label>
                       <div className="relative">
@@ -315,7 +306,6 @@ const Auth = () => {
                         />
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label htmlFor="register-password">Password</Label>
                       <div className="relative">
@@ -337,7 +327,6 @@ const Auth = () => {
                         </button>
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label htmlFor="confirm-password">Confirm Password</Label>
                       <div className="relative">
@@ -359,11 +348,9 @@ const Auth = () => {
                         </button>
                       </div>
                     </div>
-
                     <Button type="submit" className="w-full h-11" disabled={isLoading}>
                       {isLoading ? "Creating Account..." : "Create Account"}
                     </Button>
-
                     <div className="relative my-4">
                       <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t border-border" />
@@ -372,7 +359,6 @@ const Auth = () => {
                         <span className="bg-card px-2 text-muted-foreground">Or</span>
                       </div>
                     </div>
-
                     <Button 
                       type="button" 
                       variant="outline" 
@@ -419,7 +405,6 @@ const Auth = () => {
                         />
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label htmlFor="seller-email">Personal/Account Email</Label>
                       <div className="relative">
@@ -434,7 +419,6 @@ const Auth = () => {
                         />
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label htmlFor="seller-phone">Phone Number</Label>
                       <div className="relative">
@@ -449,7 +433,6 @@ const Auth = () => {
                         />
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label htmlFor="hardware-name">Hardware Store Name</Label>
                       <div className="relative">
@@ -464,7 +447,6 @@ const Auth = () => {
                         />
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label htmlFor="location">Location / Town</Label>
                       <div className="relative">
@@ -479,7 +461,6 @@ const Auth = () => {
                         />
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label htmlFor="firm-email">Firm / Store Official Email (Optional)</Label>
                       <div className="relative">
@@ -493,7 +474,6 @@ const Auth = () => {
                         />
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label htmlFor="seller-password">Password</Label>
                       <div className="relative">
@@ -515,7 +495,6 @@ const Auth = () => {
                         </button>
                       </div>
                     </div>
-
                     <div className="space-y-2">
                       <Label htmlFor="seller-confirm-password">Confirm Password</Label>
                       <div className="relative">
@@ -537,7 +516,6 @@ const Auth = () => {
                         </button>
                       </div>
                     </div>
-
                     <Button type="submit" className="w-full h-11" disabled={isLoading}>
                       {isLoading ? "Creating Seller Account..." : "Create Seller Account"}
                     </Button>
