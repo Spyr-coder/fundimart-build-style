@@ -78,6 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         lastName,
         phone: result.user.phoneNumber || "",
         role: result.user.role === "seller" || result.user.role === "admin" ? "seller" : "buyer",
+        seller: result.user.seller || undefined,
         createdAt: Date.now(),
       };
 
@@ -143,7 +144,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         firstName,
         lastName,
         phone,
-        role: result.user.role === "seller" ? "seller" : "buyer",
+        role: "buyer",
         createdAt: Date.now(),
       };
 
@@ -190,9 +191,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error(result.message || "Registration failed");
       }
 
-      const sellerId = `seller_${Date.now()}`;
-      const seller: Seller = {
-        id: sellerId,
+      const seller: Seller = result.user.seller || {
+        id: `seller_${Date.now()}`,
         userId: result.user.id,
         hardwareName,
         location,
@@ -207,7 +207,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         firstName,
         lastName,
         phone,
-        role: result.user.role === "seller" ? "seller" : "buyer",
+        role: "seller",
         seller,
         createdAt: Date.now(),
       };
