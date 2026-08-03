@@ -8,8 +8,23 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   sendOTP: (email: string) => Promise<void>;
   verifyOTP: (email: string, otp: string) => Promise<boolean>;
-  registerBuyer: (firstName: string, lastName: string, email: string, phone: string, password: string) => Promise<void>;
-  registerSeller: (firstName: string, lastName: string, email: string, phone: string, password: string, hardwareName: string, location: string, firmEmail: string) => Promise<void>;
+  registerBuyer: (
+    firstName: string,
+    lastName: string,
+    email: string,
+    phone: string,
+    password: string
+  ) => Promise<void>;
+  registerSeller: (
+    firstName: string,
+    lastName: string,
+    email: string,
+    phone: string,
+    password: string,
+    hardwareName: string,
+    location: string,
+    firmEmail: string
+  ) => Promise<void>;
   logout: () => void;
   isSeller: () => boolean;
 }
@@ -61,8 +76,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email: result.user.email,
         firstName,
         lastName,
-        phone: "", // Backend response does not contain phone
-        role: result.user.role === "admin" ? "seller" : "buyer",
+        phone: result.user.phoneNumber || "",
+        role: result.user.role === "seller" || result.user.role === "admin" ? "seller" : "buyer",
         createdAt: Date.now(),
       };
 
@@ -77,18 +92,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const sendOTP = async (email: string) => {
     setIsLoading(true);
     try {
-      // Generate a random 6-digit OTP
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      
-      // Store it temporarily
-      setOtps(prev => ({ ...prev, [email]: otp }));
-      
-      // Mock sending email
+      setOtps((prev) => ({ ...prev, [email]: otp }));
+
       console.log(`[AUTH] OTP for ${email}: ${otp}`);
       toast.info(`OTP sent to ${email} (Check console for demo)`);
-      
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 800));
+
+      await new Promise((resolve) => setTimeout(resolve, 800));
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +108,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return otps[email] === otp;
   };
 
-  const registerBuyer = async (firstName: string, lastName: string, email: string, phone: string, password: string) => {
+  const registerBuyer = async (
+    firstName: string,
+    lastName: string,
+    email: string,
+    phone: string,
+    password: string
+  ) => {
     setIsLoading(true);
     try {
       const response = await fetch("/api/auth/register", {
@@ -110,7 +126,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           name: `${firstName} ${lastName}`.trim(),
           email,
           phone,
-          password
+          password,
+          role: "customer",
         }),
       });
 
@@ -126,7 +143,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         firstName,
         lastName,
         phone,
-        role: "buyer",
+        role: result.user.role === "seller" ? "seller" : "buyer",
         createdAt: Date.now(),
       };
 
@@ -159,7 +176,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           name: `${firstName} ${lastName}`.trim(),
           email,
           phone,
-          password
+          password,
+          role: "seller",
+          town: location,
+          hardwareName,
+          firmEmail,
         }),
       });
 
@@ -186,7 +207,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         firstName,
         lastName,
         phone,
-        role: "seller",
+        role: result.user.role === "seller" ? "seller" : "buyer",
         seller,
         createdAt: Date.now(),
       };
@@ -210,7 +231,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, sendOTP, verifyOTP, registerBuyer, registerSeller, logout, isSeller }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        login,
+        sendOTP,
+        verifyOTP,
+        registerBuyer,
+        registerSeller,
+        logout,
+        isSeller,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
