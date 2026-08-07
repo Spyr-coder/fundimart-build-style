@@ -29,11 +29,25 @@ const CATEGORIES = [
   "Other",
 ];
 
+const UNITS = [
+  "kg",
+  "50kg bag",
+  "ton",
+  "piece",
+  "meter",
+  "feet",
+  "liter",
+  "box",
+  "set",
+  "trip / lorry",
+];
+
 export const ProductForm = ({ initialData, onSubmit, isLoading = false }: ProductFormProps) => {
   const [formData, setFormData] = useState({
     name: initialData?.name || "",
     category: initialData?.category || "",
     price: initialData?.price || 0,
+    unit: initialData?.unit || "", // <-- ADDED UNIT
     stock: initialData?.stock || 0,
     quality: initialData?.quality || "",
     description: initialData?.description || "",
@@ -78,6 +92,10 @@ export const ProductForm = ({ initialData, onSubmit, isLoading = false }: Produc
     }
     if (!formData.category) {
       toast.error("Please select a category");
+      return;
+    }
+    if (!formData.unit) { // <-- ADDED VALIDATION CHECK
+      toast.error("Please select or enter a unit of measurement");
       return;
     }
     if (formData.price <= 0) {
@@ -125,8 +143,8 @@ export const ProductForm = ({ initialData, onSubmit, isLoading = false }: Produc
         </Select>
       </div>
 
-      {/* Price & Stock Row */}
-      <div className="grid grid-cols-2 gap-4">
+      {/* Price, Unit & Stock Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="space-y-2">
           <Label htmlFor="price" className="text-base font-medium">Price (KES) *</Label>
           <Input
@@ -140,6 +158,24 @@ export const ProductForm = ({ initialData, onSubmit, isLoading = false }: Produc
             required
           />
         </div>
+
+        {/* Unit Selector */}
+        <div className="space-y-2">
+          <Label htmlFor="unit" className="text-base font-medium">Unit *</Label>
+          <Select value={formData.unit} onValueChange={(value) => setFormData({ ...formData, unit: value })}>
+            <SelectTrigger id="unit">
+              <SelectValue placeholder="Select unit (e.g. 50kg bag)" />
+            </SelectTrigger>
+            <SelectContent>
+              {UNITS.map((u) => (
+                <SelectItem key={u} value={u}>
+                  {u}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="stock" className="text-base font-medium">Quantity in Stock *</Label>
           <Input
@@ -206,7 +242,6 @@ export const ProductForm = ({ initialData, onSubmit, isLoading = false }: Produc
       <div className="space-y-2">
         <Label className="text-base font-medium">Product Photos</Label>
         <div className="space-y-4">
-          {/* Photo Upload */}
           <div className="border-2 border-dashed border-border rounded-lg p-6 cursor-pointer hover:border-primary transition-colors">
             <input
               type="file"
@@ -224,7 +259,6 @@ export const ProductForm = ({ initialData, onSubmit, isLoading = false }: Produc
             </label>
           </div>
 
-          {/* Photo Preview Grid */}
           {formData.photos.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {formData.photos.map((photo, index) => (

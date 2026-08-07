@@ -24,7 +24,7 @@ export interface Product {
   name: string;
   category: string;
   price: number;
-  unit?: string;
+  unit: string;
   stock: number;
   quality?: string;
   description?: string;
@@ -36,7 +36,6 @@ export interface Product {
   status: string;
   createdAt: number;
   updatedAt: number;
-  // Missing properties added to clear out TypeScript compilation blocks:
   rating?: number;
   reviews?: number;
 }
