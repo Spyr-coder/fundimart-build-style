@@ -18,6 +18,7 @@ interface SellerOrder {
   createdAt: number;
   phoneNumber?: string;
   status?: string;
+  totalAmount?: number;
   items: Array<{
     id: string;
     sellerId?: string;
@@ -58,18 +59,29 @@ const SellerDashboard = () => {
   const fetchSellerProducts = async () => {
     if (!user?.id) return;
     try {
-      const response = await fetch("/api/products?limit=100");
+      const token = getAuthToken();
+      const response = await fetch("/api/products?limit=100&status=ALL", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
       if (!response.ok) throw new Error("Failed to load DB products");
       const result = await response.json();
       const dbProducts = ((result.data || []) as Product[]).filter((p) => p.sellerId === user.id);
       setProducts(dbProducts);
-      setStats(prev => ({ ...prev, activeListings: dbProducts.length, outOfStock: dbProducts.filter((p) => p.stock === 0).length }));
+      setStats(prev => ({ 
+        ...prev, 
+        activeListings: dbProducts.length, 
+        outOfStock: dbProducts.filter((p) => p.stock === 0).length 
+      }));
     } catch (error) {
-      console.warn("Backend offline, loading from localStorage:", error);
+      console.warn("Error fetching seller products, falling back to localStorage:", error);
       const allProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
       const sellerProducts = allProducts.filter((p: Product) => p.sellerId === user.id);
       setProducts(sellerProducts);
-      setStats(prev => ({ ...prev, activeListings: sellerProducts.length, outOfStock: sellerProducts.filter((p: Product) => p.stock === 0).length }));
+      setStats(prev => ({ 
+        ...prev, 
+        activeListings: sellerProducts.length, 
+        outOfStock: sellerProducts.filter((p: Product) => p.stock === 0).length 
+      }));
     }
   };
 
@@ -205,7 +217,7 @@ const SellerDashboard = () => {
     toast.success(`Order marked as ${newStatus}`);
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status?: string) => {
     switch (status) {
       case "accepted": return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Accepted</Badge>;
       case "preparing": return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Preparing</Badge>;
@@ -511,7 +523,7 @@ const SellerDashboard = () => {
       <AlertDialog open={!!deletingProductId} onOpenChange={() => setDeletingProductId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <DialogTitle>Delete Product</DialogTitle>
+            <AlertDialogTitle>Delete Product</AlertDialogTitle>
             <AlertDialogDescription>Are you sure you want to delete this product? This action cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
           <div className="flex gap-3 justify-end">

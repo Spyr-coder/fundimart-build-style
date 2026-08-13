@@ -15,7 +15,6 @@ import { Edit2, Trash2, Plus, Check, X, Loader2 } from 'lucide-react';
 import { Product } from '@/types/product';
 import { toast } from 'sonner';
 
-// Custom type extension matching the backend Product model properties
 interface APIProduct extends Omit<Product, 'status'> {
   status: 'PENDING' | 'APPROVED' | 'REJECTED';
 }
@@ -27,7 +26,6 @@ export default function AdminProducts() {
   const [isLoading, setIsLoading] = useState(false);
   const [isActionLoading, setIsActionLoading] = useState<string | null>(null);
 
-  // Get administrative auth headers
   const getHeaders = () => {
     const token = localStorage.getItem('admin_token') || localStorage.getItem('fundimart_token') || localStorage.getItem('token');
     return {
@@ -36,12 +34,10 @@ export default function AdminProducts() {
     };
   };
 
-  // Fetch all products on mount (admin bypass filters to see PENDING and REJECTED)
   const fetchProducts = async () => {
     setIsLoading(true);
     try {
-      // Adding status filter query parameter as admin to fetch everything
-      const response = await fetch('/api/products?limit=100', {
+      const response = await fetch('/api/products?status=ALL&limit=100', {
         headers: getHeaders()
       });
       const resData = await response.json();
@@ -62,7 +58,6 @@ export default function AdminProducts() {
     fetchProducts();
   }, []);
 
-  // Update Product Status (Approve or Reject)
   const handleStatusUpdate = async (id: string, newStatus: 'APPROVED' | 'REJECTED' | 'PENDING') => {
     setIsActionLoading(id);
     try {
@@ -88,7 +83,6 @@ export default function AdminProducts() {
     }
   };
 
-  // Add a new product via Backend API
   const handleAddProduct = async (data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
     setIsLoading(true);
     try {
@@ -102,7 +96,7 @@ export default function AdminProducts() {
       if (resData.success) {
         toast.success("Product created successfully!");
         setShowAddModal(false);
-        fetchProducts(); // Refresh listings
+        fetchProducts();
       } else {
         toast.error(resData.message || "Failed to create product");
       }
@@ -113,7 +107,6 @@ export default function AdminProducts() {
     }
   };
 
-  // Edit existing product details via Backend API
   const handleEditProduct = async (data: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => {
     if (!editingProduct) return;
     setIsLoading(true);
@@ -128,7 +121,7 @@ export default function AdminProducts() {
       if (resData.success) {
         toast.success("Product updated successfully! Sent to pending review.");
         setEditingProduct(null);
-        fetchProducts(); // Refresh listings
+        fetchProducts();
       } else {
         toast.error(resData.message || "Failed to update product");
       }
@@ -139,7 +132,6 @@ export default function AdminProducts() {
     }
   };
 
-  // Delete a product permanently from Database
   const handleDeleteProduct = async (id: string) => {
     if (confirm("Are you sure you want to permanently delete this product?")) {
       try {
@@ -161,7 +153,6 @@ export default function AdminProducts() {
     }
   };
 
-  // Generate CSS styling class based on status
   const getStatusBadge = (status: APIProduct['status']) => {
     switch (status) {
       case 'APPROVED':
@@ -215,82 +206,79 @@ export default function AdminProducts() {
                   </TableCell>
                 </TableRow>
               ) : (
-                products.map((product) => {
-                  return (
-                    <TableRow key={product.id} className="border-slate-700 hover:bg-slate-700/30">
-                      <TableCell className="text-white font-medium">
-                        {product.name}
-                      </TableCell>
-                      <TableCell className="text-slate-300 capitalize">{product.category}</TableCell>
-                      <TableCell className="text-slate-300">KES {product.price.toLocaleString()}</TableCell>
-                      <TableCell className="text-slate-300">{product.stock} units</TableCell>
-                      <TableCell className="text-slate-300">
-                        <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${getStatusBadge(product.status)}`}>
-                          {product.status}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={isActionLoading !== null}
-                            onClick={() => handleStatusUpdate(product.id, 'APPROVED')}
-                            className="bg-green-950/40 hover:bg-green-900 border-green-800 text-green-400 h-8 w-8 p-0"
-                            title="Approve Listing"
-                          >
-                            {isActionLoading === product.id ? (
-                              <Loader2 size={14} className="animate-spin" />
-                            ) : (
-                              <Check size={14} />
-                            )}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            disabled={isActionLoading !== null}
-                            onClick={() => handleStatusUpdate(product.id, 'REJECTED')}
-                            className="bg-red-950/40 hover:bg-red-900 border-red-800 text-red-400 h-8 w-8 p-0"
-                            title="Reject Listing"
-                          >
-                            {isActionLoading === product.id ? (
-                              <Loader2 size={14} className="animate-spin" />
-                            ) : (
-                              <X size={14} />
-                            )}
-                          </Button>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right space-x-2">
+                products.map((product) => (
+                  <TableRow key={product.id} className="border-slate-700 hover:bg-slate-700/30">
+                    <TableCell className="text-white font-medium">
+                      {product.name}
+                    </TableCell>
+                    <TableCell className="text-slate-300 capitalize">{product.category}</TableCell>
+                    <TableCell className="text-slate-300">KES {product.price.toLocaleString()}</TableCell>
+                    <TableCell className="text-slate-300">{product.stock} {product.unit || 'units'}</TableCell>
+                    <TableCell className="text-slate-300">
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${getStatusBadge(product.status)}`}>
+                        {product.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-2">
                         <Button
+                          size="sm"
                           variant="outline"
-                          size="sm"
-                          onClick={() => setEditingProduct(product)}
-                          className="gap-2 border-slate-600 hover:bg-slate-700 text-slate-300"
+                          disabled={isActionLoading !== null}
+                          onClick={() => handleStatusUpdate(product.id, 'APPROVED')}
+                          className="bg-green-950/40 hover:bg-green-900 border-green-800 text-green-400 h-8 w-8 p-0"
+                          title="Approve Listing"
                         >
-                          <Edit2 size={14} />
-                          <span className="hidden lg:inline">Edit</span>
+                          {isActionLoading === product.id ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <Check size={14} />
+                          )}
                         </Button>
                         <Button
-                          variant="destructive"
                           size="sm"
-                          onClick={() => handleDeleteProduct(product.id)}
-                          className="gap-2"
+                          variant="outline"
+                          disabled={isActionLoading !== null}
+                          onClick={() => handleStatusUpdate(product.id, 'REJECTED')}
+                          className="bg-red-950/40 hover:bg-red-900 border-red-800 text-red-400 h-8 w-8 p-0"
+                          title="Reject Listing"
                         >
-                          <Trash2 size={14} />
-                          <span className="hidden lg:inline">Delete</span>
+                          {isActionLoading === product.id ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <X size={14} />
+                          )}
                         </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingProduct(product)}
+                        className="gap-2 border-slate-600 hover:bg-slate-700 text-slate-300"
+                      >
+                        <Edit2 size={14} />
+                        <span className="hidden lg:inline">Edit</span>
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="gap-2"
+                      >
+                        <Trash2 size={14} />
+                        <span className="hidden lg:inline">Delete</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
             </TableBody>
           </Table>
         </div>
       </CardContent>
 
-      {/* Add Product Dialog */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
         <DialogContent className="fixed left-[50%] top-[50%] z-50 max-w-2xl w-full max-h-[85vh] translate-x-[-50%] translate-y-[-50%] overflow-y-auto bg-slate-900 border-slate-700 text-white p-6 shadow-lg duration-200">
           <DialogHeader>
@@ -303,7 +291,6 @@ export default function AdminProducts() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Product Dialog */}
       <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
         <DialogContent className="fixed left-[50%] top-[50%] z-50 max-w-2xl w-full max-h-[85vh] translate-x-[-50%] translate-y-[-50%] overflow-y-auto bg-slate-900 border-slate-700 text-white p-6 shadow-lg duration-200">
           <DialogHeader>
@@ -316,7 +303,6 @@ export default function AdminProducts() {
             <ProductForm 
               initialData={{
                 ...editingProduct,
-                // Maps your string single-image fallback arrays into a valid type format
                 photos: editingProduct.photos || []
               } as unknown as Product} 
               onSubmit={handleEditProduct} 
