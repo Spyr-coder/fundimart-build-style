@@ -8,15 +8,36 @@ import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-muted/20">
+      {/* Alibaba-style Top Header Engine */}
       <Header />
-      <main>
+
+      {/* Main Homepage Showcase Wrapper */}
+      <main className="space-y-6 pb-12">
+        {/* Main Hero Sourcing Portal */}
         <Hero />
-        <BestSellers />
-        <Categories />
-        <FeaturedProducts />
-        <PromoBanner />
+
+        {/* High-Level Category Grid */}
+        <div className="container mx-auto px-4">
+          <Categories />
+        </div>
+
+        {/* Featured Construction & Hardware Sourcing */}
+        <div className="container mx-auto px-4">
+          <FeaturedProducts />
+        </div>
+
+        {/* Ready to Ship / Best Sellers Highlight */}
+        <div className="container mx-auto px-4">
+          <BestSellers />
+        </div>
+
+        {/* Supplier / Bulk Sourcing Promotional Banner */}
+        <div className="container mx-auto px-4">
+          <PromoBanner />
+        </div>
       </main>
+
       <Footer />
     </div>
   );
