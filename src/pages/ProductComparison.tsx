@@ -15,6 +15,7 @@ interface ComparisonProduct {
   image: string;
   name: string;
   price: number;
+  unit: string;
   rating: number;
   reviews: number;
   badge?: string;
@@ -41,9 +42,10 @@ export default function ProductComparison() {
         })
         .map((p: Product) => ({
           id: p.id,
-          image: p.photos?.[0] || placeholderImage(p.name),
+          image: p.photos?.[0] || p.image || placeholderImage(p.name),
           name: p.name,
           price: p.price,
+          unit: p.unit || "item",
           rating: p.rating || 4.5,
           reviews: p.reviews || 0,
           badge: p.quality ? p.quality : undefined,
@@ -82,6 +84,7 @@ export default function ProductComparison() {
       id: product.id,
       name: product.name,
       price: product.price,
+      unit: product.unit,
       image: product.image,
       sellerId: product.sellerId
     });
@@ -110,7 +113,9 @@ export default function ProductComparison() {
               </SelectTrigger>
               <SelectContent>
                 {allProducts.filter(p => !selectedIds.includes(p.id)).map(p => (
-                  <SelectItem key={p.id} value={p.id}>{p.name} (KES {p.price.toLocaleString()})</SelectItem>
+                  <SelectItem key={p.id} value={p.id}>
+                    {p.name} (KES {p.price.toLocaleString()} / {p.unit})
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -150,7 +155,9 @@ export default function ProductComparison() {
                 </div>
                 <CardHeader className="p-4">
                   <CardTitle className="text-lg leading-tight line-clamp-2 min-h-[3rem]">{product.name}</CardTitle>
-                  <div className="text-2xl font-bold text-primary">KES {product.price.toLocaleString()}</div>
+                  <div className="text-2xl font-bold text-primary">
+                    KES {product.price.toLocaleString()} <span className="text-xs text-muted-foreground font-normal">/ {product.unit}</span>
+                  </div>
                 </CardHeader>
                 <CardContent className="p-4 space-y-4 pt-0">
                   <div className="space-y-3 pt-4 border-t">

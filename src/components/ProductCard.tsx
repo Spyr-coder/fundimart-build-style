@@ -4,12 +4,14 @@ import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { placeholderImage } from "@/lib/utils";
 
 interface ProductCardProps {
   id: string;
   image: string;
   name: string;
   price: number;
+  unit?: string;
   originalPrice?: number;
   rating: number;
   reviews: number;
@@ -23,6 +25,7 @@ const ProductCard = ({
   image,
   name,
   price,
+  unit = "piece",
   originalPrice,
   rating,
   reviews,
@@ -32,12 +35,13 @@ const ProductCard = ({
 }: ProductCardProps) => {
   const { addToCart } = useCart();
   const [isFavorited, setIsFavorited] = useState(false);
+  const [imgSrc, setImgSrc] = useState<string>(image || placeholderImage(name));
   const navigate = useNavigate();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart({ id, sellerId, image, name, price });
+    addToCart({ id, sellerId, image: imgSrc, name, price, unit });
     toast.success(`${name} added to cart`);
   };
 
@@ -83,15 +87,16 @@ const ProductCard = ({
         </button>
 
         <img
-          src={image}
+          src={imgSrc}
           alt={name}
+          onError={() => setImgSrc(placeholderImage(name))}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
       </Link>
 
       {/* Product Content Details */}
       <div className="p-3 md:p-4 flex flex-col flex-grow">
-        {/* Alibaba Verified Seller Tag */}
+        {/* Verified Seller Tag */}
         <div className="flex items-center justify-between gap-1 mb-1 text-[11px] text-muted-foreground">
           <span className="flex items-center gap-1 font-semibold text-emerald-600 dark:text-emerald-400">
             <ShieldCheck className="w-3 h-3 shrink-0" />
@@ -139,10 +144,10 @@ const ProductCard = ({
               </span>
             )}
           </div>
-          <p className="text-[10px] text-muted-foreground">Price per Unit / Wholesale Available</p>
+          <p className="text-[10px] text-muted-foreground">Price per {unit} / Wholesale Available</p>
         </div>
 
-        {/* Dual CTA Actions (Add to Cart + Fast Inquire) */}
+        {/* Dual CTA Actions */}
         <div className="grid grid-cols-5 gap-1.5 pt-2 border-t border-border/40">
           <Button 
             className="col-span-4 h-8 md:h-9 text-xs font-bold gap-1 bg-primary hover:bg-primary/90 text-primary-foreground" 

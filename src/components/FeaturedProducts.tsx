@@ -22,6 +22,27 @@ const FeaturedProducts = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  // Helper to resolve single valid image URL from diverse payload structures
+  const resolveProductImage = (p: any): string => {
+    // 1. Array checks
+    if (Array.isArray(p.photos) && p.photos.length > 0 && p.photos[0]) return p.photos[0];
+    if (Array.isArray(p.images) && p.images.length > 0 && p.images[0]) return p.images[0];
+    
+    // 2. Direct string checks
+    if (typeof p.image === "string" && p.image.trim() !== "") return p.image;
+    if (typeof p.photos === "string" && p.photos.trim() !== "") {
+      try {
+        const parsed = JSON.parse(p.photos);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed[0];
+      } catch {
+        return p.photos;
+      }
+    }
+
+    // 3. Fallback to utility placeholder generator
+    return placeholderImage(p.name || "Hardware Material");
+  };
+
   useEffect(() => {
     const fetchFeaturedProducts = async () => {
       try {
@@ -37,7 +58,7 @@ const FeaturedProducts = () => {
         
         const formatted = productArray.map((p: any) => ({
           id: p.id || p._id,
-          image: p.photos?.[0] || p.images?.[0] || p.image || placeholderImage(p.name),
+          image: resolveProductImage(p),
           name: p.name,
           price: p.price,
           rating: p.rating,

@@ -6,6 +6,7 @@ export interface CartItem {
   image: string;
   name: string;
   price: number;
+  unit: string;
   quantity: number;
 }
 
@@ -22,7 +23,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
-  // Initialize from localStorage safely to protect against variable mapping crashes
+  // Initialize from localStorage safely
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
       const stored = localStorage.getItem("fundimart_cart");

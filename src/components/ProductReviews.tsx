@@ -28,13 +28,18 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
     // Check if user has purchased the product
     if (user) {
       const allOrders = JSON.parse(localStorage.getItem("fundimart_orders") || "[]") as Array<{
+        userId?: string;
         items: Array<{ id: string }>;
       }>;
-      // Check if any order contains this product
+      
+      // Check if any order matching user ID contains this product
       const purchased = allOrders.some((order) => 
+        (!order.userId || order.userId === user.id) &&
         order.items.some((item) => item.id === productId)
       );
       setHasPurchased(purchased);
+    } else {
+      setHasPurchased(false);
     }
   }, [productId, user]);
 
@@ -62,7 +67,7 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
         id: `review_${Date.now()}`,
         productId,
         userId: user.id,
-        userName: `${user.firstName} ${user.lastName}`,
+        userName: `${user.firstName} ${user.lastName}`.trim() || user.email,
         rating,
         comment,
         createdAt: Date.now(),
@@ -72,7 +77,7 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
       const updatedReviews = [newReview, ...allReviews];
       localStorage.setItem("fundimart_reviews", JSON.stringify(updatedReviews));
 
-      setReviews([newReview, ...reviews]);
+      setReviews((prev) => [newReview, ...prev]);
       setRating(0);
       setComment("");
       toast.success("Review submitted successfully!");

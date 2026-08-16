@@ -29,6 +29,7 @@ export interface Product {
   quality?: string;
   description?: string;
   photos: string[];
+  image?: string;
   sellerId: string;
   sellerName: string;
   sellerContact?: string;
