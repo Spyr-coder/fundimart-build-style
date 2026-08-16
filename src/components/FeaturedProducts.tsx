@@ -26,18 +26,18 @@ const FeaturedProducts = () => {
     const fetchFeaturedProducts = async () => {
       try {
         setLoading(true);
-        // Replace '/api/products/featured' with your actual API endpoint URL
         const response = await fetch("/api/products/featured");
         
         if (!response.ok) {
           throw new Error("Failed to fetch products from server");
         }
 
-        const data = await response.json();
+        const result = await response.json();
+        const productArray = Array.isArray(result) ? result : result.data || [];
         
-        const formatted = data.map((p: any) => ({
+        const formatted = productArray.map((p: any) => ({
           id: p.id || p._id,
-          image: p.photos?.[0] || p.imageUrl || placeholderImage(p.name),
+          image: p.photos?.[0] || p.images?.[0] || p.image || placeholderImage(p.name),
           name: p.name,
           price: p.price,
           rating: p.rating,
