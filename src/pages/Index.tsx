@@ -1,7 +1,6 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import BestSellers from "@/components/BestSellers";
-import Categories from "@/components/Categories";
 import FeaturedProducts from "@/components/FeaturedProducts";
 import PromoBanner from "@/components/PromoBanner";
 import Footer from "@/components/Footer";
@@ -9,30 +8,25 @@ import Footer from "@/components/Footer";
 const Index = () => {
   return (
     <div className="min-h-screen bg-muted/20">
-      {/* Alibaba-style Top Header Engine */}
+      {/* Top Header Navigation */}
       <Header />
 
       {/* Main Homepage Showcase Wrapper */}
-      <main className="space-y-6 pb-12">
-        {/* Main Hero Sourcing Portal */}
+      <main className="space-y-4 pb-10">
+        {/* Compact Hero Banner */}
         <Hero />
 
-        {/* High-Level Category Grid */}
-        <div className="container mx-auto px-4">
-          <Categories />
-        </div>
-
-        {/* Featured Construction & Hardware Sourcing */}
+        {/* Featured Hardware & Material Listings */}
         <div className="container mx-auto px-4">
           <FeaturedProducts />
         </div>
 
-        {/* Ready to Ship / Best Sellers Highlight */}
+        {/* Popular Items Showcase */}
         <div className="container mx-auto px-4">
           <BestSellers />
         </div>
 
-        {/* Supplier / Bulk Sourcing Promotional Banner */}
+        {/* Direct Sourcing Banner */}
         <div className="container mx-auto px-4">
           <PromoBanner />
         </div>

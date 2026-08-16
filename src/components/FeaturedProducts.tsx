@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import ProductCard from "./ProductCard";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, ShieldCheck, Factory, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Building2, CheckCircle2 } from "lucide-react";
 import { Product, User } from "@/types/product";
 import { useNavigate } from "react-router-dom";
 import { placeholderImage } from "@/lib/utils";
@@ -51,55 +51,51 @@ const FeaturedProducts = () => {
   const featured = allProducts.slice(0, 12);
 
   return (
-    <section className="py-8 md:py-12 bg-background border-t border-border">
+    <section className="py-4 md:py-6 bg-background rounded-xl border border-border shadow-sm">
       <div className="container mx-auto px-4">
         
         {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div>
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-primary mb-1">
-              <Factory className="w-4 h-4" />
-              <span>Direct Factory Wholesale</span>
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary mb-0.5">
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Direct Hardware Directory</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-foreground">
-              Featured Factory Listings
+            <h2 className="text-xl sm:text-2xl font-extrabold text-foreground">
+              Featured Material Listings
             </h2>
           </div>
 
           <Button 
             variant="outline" 
             size="sm"
-            className="group w-full sm:w-auto font-bold h-10 border-border"
+            className="group w-full sm:w-auto font-bold h-9 text-xs border-border"
             onClick={() => navigate("/products")}
           >
             Browse All Listings
-            <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-3.5 h-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </div>
 
-        {/* Wholesale Trust Indicators */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8 bg-card border border-border rounded-xl p-3 shadow-sm text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span>Audited Hardware Suppliers</span>
+        {/* Simple Trust Banner */}
+        <div className="flex items-center gap-4 mb-4 text-xs text-muted-foreground pb-3 border-b border-border">
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+            <span>Verified Local Dealers</span>
           </div>
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
-            <span>Escrow Payment Guarantee</span>
-          </div>
-          <div className="hidden md:flex items-center gap-2">
-            <Factory className="w-4 h-4 text-accent shrink-0" />
-            <span>Bulk Tiered Rates</span>
+          <div className="flex items-center gap-1.5">
+            <Building2 className="w-3.5 h-3.5 text-primary shrink-0" />
+            <span>Direct Phone Contact</span>
           </div>
         </div>
 
         {/* Listings Grid */}
         {featured.length === 0 ? (
-          <div className="text-center py-12 bg-card border border-border rounded-xl shadow-sm text-xs text-muted-foreground">
+          <div className="text-center py-10 bg-card border border-border rounded-lg text-xs text-muted-foreground">
             No supplier products posted yet.
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
             {featured.map((product, index) => (
               <ProductCard key={`${product.id}-${index}`} {...product} />
             ))}
