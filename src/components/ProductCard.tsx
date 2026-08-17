@@ -1,10 +1,10 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, Heart, Star, ShieldCheck, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { placeholderImage } from "@/lib/utils";
+import { getProductImage } from "@/lib/imageUtils";
 
 interface ProductCardProps {
   id: string;
@@ -12,6 +12,7 @@ interface ProductCardProps {
   name: string;
   price: number;
   unit?: string;
+  category?: string;
   originalPrice?: number;
   rating: number;
   reviews: number;
@@ -26,6 +27,7 @@ const ProductCard = ({
   name,
   price,
   unit = "piece",
+  category,
   originalPrice,
   rating,
   reviews,
@@ -35,7 +37,9 @@ const ProductCard = ({
 }: ProductCardProps) => {
   const { addToCart } = useCart();
   const [isFavorited, setIsFavorited] = useState(false);
-  const [imgSrc, setImgSrc] = useState<string>(image || placeholderImage(name));
+  const [imgSrc, setImgSrc] = useState<string>(
+    getProductImage(image, category, name)
+  );
   const navigate = useNavigate();
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -60,6 +64,10 @@ const ProductCard = ({
     e.preventDefault();
     e.stopPropagation();
     navigate(`/product/${id}`);
+  };
+
+  const handleImageError = () => {
+    setImgSrc(getProductImage(undefined, category, name));
   };
 
   return (
@@ -89,7 +97,7 @@ const ProductCard = ({
         <img
           src={imgSrc}
           alt={name}
-          onError={() => setImgSrc(placeholderImage(name))}
+          onError={handleImageError}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
       </Link>
