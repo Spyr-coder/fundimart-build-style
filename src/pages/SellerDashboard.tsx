@@ -121,19 +121,39 @@ const SellerDashboard = () => {
     setIsLoading(true);
     try {
       const token = getAuthToken();
+
+      const photosArray = data.photos && data.photos.length > 0 
+        ? data.photos 
+        : (data as any).image ? [(data as any).image] : [];
+      
+      const singleImage = photosArray[0] || (data as any).image || "";
+
       const response = await fetch("/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify({ name: data.name, price: data.price, unit: data.unit, stock: data.stock, category: data.category || "general", description: data.description || "" })
+        body: JSON.stringify({ 
+          name: data.name, 
+          price: data.price, 
+          unit: data.unit, 
+          stock: data.stock, 
+          category: data.category || "general", 
+          description: data.description || "",
+          photos: photosArray,
+          image: singleImage
+        })
       });
 
       if (!response.ok) throw new Error("Failed to add product");
 
+      const result = await response.json();
+      const createdDbProduct = result.data || result.product || {};
+
       const newLocalProduct: Product = {
         ...data,
-        id: `prod_${Date.now()}`,
+        id: createdDbProduct.id || `prod_${Date.now()}`,
         sellerId: user?.id || "",
         sellerName: user?.seller?.hardwareName || `${user?.firstName} ${user?.lastName}`,
+        photos: photosArray,
         createdAt: Date.now(),
         updatedAt: Date.now(),
         status: "active",
@@ -158,15 +178,31 @@ const SellerDashboard = () => {
     setIsLoading(true);
     try {
       const token = getAuthToken();
+
+      const photosArray = data.photos && data.photos.length > 0 
+        ? data.photos 
+        : (data as any).image ? [(data as any).image] : [];
+      const singleImage = photosArray[0] || (data as any).image || "";
+
       const response = await fetch(`/api/products/${editingProduct.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify(data)
+        body: JSON.stringify({
+          ...data,
+          photos: photosArray,
+          image: singleImage
+        })
       });
 
       if (!response.ok) throw new Error("Failed to update product");
 
-      const updatedProduct: Product = { ...editingProduct, ...data, updatedAt: Date.now() };
+      const updatedProduct: Product = { 
+        ...editingProduct, 
+        ...data, 
+        photos: photosArray,
+        updatedAt: Date.now() 
+      };
+
       const allProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
       const index = allProducts.findIndex((p: Product) => p.id === editingProduct.id);
       if (index !== -1) {

@@ -9,8 +9,7 @@ import {
   FileText, 
   Phone, 
   MapPin, 
-  Info,
-  CheckCircle2
+  Info 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -42,35 +41,94 @@ const ProductDetail = () => {
   const [isFavorited, setIsFavorited] = useState(false);
   const [product, setProduct] = useState<DisplayProduct | null>(null);
   const [allProducts, setAllProducts] = useState<DisplayProduct[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    
-    const storedProducts: Product[] = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
-    const formattedStored = storedProducts.map((p: Product) => ({
-      id: p.id,
-      image: p.photos?.[0] || placeholderImage(p.name),
-      name: p.name,
-      price: p.price,
-      rating: p.rating || 4.8,
-      reviews: p.reviews || 0,
-      badge: p.quality ? p.quality : undefined,
-      sellerName: p.sellerName || "Verified Seller",
-      sellerId: p.sellerId || "seller_01",
-      sellerContact: p.sellerContact || "+254 700 000 000",
-      warehouseLocation: p.warehouseLocation || "Nairobi, Kenya",
-      category: p.category,
-      description: p.description
-    }));
 
-    setAllProducts(formattedStored);
-    const found = formattedStored.find((p) => p.id === id);
-    setProduct(found || null);
+    const loadProductData = async () => {
+      setIsLoading(true);
+      let fetchedProduct: DisplayProduct | null = null;
+
+      // 1. Attempt to fetch directly from backend API
+      try {
+        const response = await fetch(`/api/products/${id}`);
+        if (response.ok) {
+          const result = await response.json();
+          const p: Product = result.data || result.product || result;
+          if (p && p.id) {
+            fetchedProduct = {
+              id: p.id,
+              image: p.photos?.[0] || (p as any).image || placeholderImage(p.name),
+              name: p.name,
+              price: p.price,
+              rating: p.rating || 4.8,
+              reviews: p.reviews || 0,
+              badge: p.quality ? p.quality : undefined,
+              sellerName: p.sellerName || "Verified Seller",
+              sellerId: p.sellerId || "seller_01",
+              sellerContact: p.sellerContact || "+254 700 000 000",
+              warehouseLocation: p.warehouseLocation || "Nairobi, Kenya",
+              category: p.category,
+              description: p.description,
+            };
+          }
+        }
+      } catch (err) {
+        console.warn("API fetch failed, checking local storage cache...", err);
+      }
+
+      // 2. Fallback to localStorage if API fetch fails or product is missing
+      const storedProducts: Product[] = JSON.parse(
+        localStorage.getItem("fundimart_products") || "[]"
+      );
+      
+      const formattedStored: DisplayProduct[] = storedProducts.map((p: Product) => ({
+        id: p.id,
+        image: p.photos?.[0] || (p as any).image || placeholderImage(p.name),
+        name: p.name,
+        price: p.price,
+        rating: p.rating || 4.8,
+        reviews: p.reviews || 0,
+        badge: p.quality ? p.quality : undefined,
+        sellerName: p.sellerName || "Verified Seller",
+        sellerId: p.sellerId || "seller_01",
+        sellerContact: p.sellerContact || "+254 700 000 000",
+        warehouseLocation: p.warehouseLocation || "Nairobi, Kenya",
+        category: p.category,
+        description: p.description,
+      }));
+
+      setAllProducts(formattedStored);
+
+      if (fetchedProduct) {
+        setProduct(fetchedProduct);
+      } else {
+        const foundLocal = formattedStored.find((p) => p.id === id);
+        setProduct(foundLocal || null);
+      }
+
+      setIsLoading(false);
+    };
+
+    if (id) loadProductData();
   }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <main className="flex-grow container mx-auto px-4 py-16 text-center">
+          <p className="text-muted-foreground animate-pulse">Loading product details...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!product) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col bg-background">
         <Header />
         <main className="flex-grow container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Product Not Found</h1>
@@ -101,7 +159,6 @@ const ProductDetail = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-6 md:py-10">
-        
         <button
           onClick={() => navigate(-1)}
           className="flex items-center text-xs font-semibold text-muted-foreground hover:text-primary mb-4 transition-colors"
@@ -111,7 +168,6 @@ const ProductDetail = () => {
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
-          
           {/* Image */}
           <div className="lg:col-span-5">
             <div className="bg-card border border-border rounded-xl overflow-hidden aspect-square relative group shadow-sm">
@@ -194,7 +250,6 @@ const ProductDetail = () => {
                   </p>
                 )}
               </div>
-
             </div>
           </div>
         </div>
@@ -232,7 +287,6 @@ const ProductDetail = () => {
             </div>
           </section>
         )}
-
       </main>
       <Footer />
     </div>
