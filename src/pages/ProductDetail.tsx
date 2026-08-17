@@ -40,7 +40,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const [isFavorited, setIsFavorited] = useState(false);
   const [product, setProduct] = useState<DisplayProduct | null>(null);
-  const [allProducts, setAllProducts] = useState<DisplayProduct[]>([]);
+  const [recommendedProducts, setRecommendedProducts] = useState<DisplayProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -48,67 +48,75 @@ const ProductDetail = () => {
 
     const loadProductData = async () => {
       setIsLoading(true);
-      let fetchedProduct: DisplayProduct | null = null;
 
-      // 1. Attempt to fetch directly from backend API
       try {
         const response = await fetch(`/api/products/${id}`);
-        if (response.ok) {
-          const result = await response.json();
-          const p: Product = result.data || result.product || result;
-          if (p && p.id) {
-            fetchedProduct = {
-              id: p.id,
-              image: p.photos?.[0] || (p as any).image || placeholderImage(p.name),
-              name: p.name,
-              price: p.price,
-              rating: p.rating || 4.8,
-              reviews: p.reviews || 0,
-              badge: p.quality ? p.quality : undefined,
-              sellerName: p.sellerName || "Verified Seller",
-              sellerId: p.sellerId || "seller_01",
-              sellerContact: p.sellerContact || "+254 700 000 000",
-              warehouseLocation: p.warehouseLocation || "Nairobi, Kenya",
-              category: p.category,
-              description: p.description,
-            };
+        if (!response.ok) {
+          throw new Error("Failed to fetch product data from server");
+        }
+
+        const result = await response.json();
+        const p: Product = result.data || result.product || result;
+
+        if (p && p.id) {
+          const formattedProduct: DisplayProduct = {
+            id: p.id,
+            image: p.photos?.[0] || (p as any).image || placeholderImage(p.name),
+            name: p.name,
+            price: p.price,
+            rating: p.rating || 4.8,
+            reviews: p.reviews || 0,
+            badge: p.quality ? p.quality : undefined,
+            sellerName: (p as any).seller?.name || p.sellerName || "Verified Seller",
+            sellerId: p.sellerId || "seller_01",
+            sellerContact: (p as any).seller?.phoneNumber || p.sellerContact || "+254 700 000 000",
+            warehouseLocation: p.warehouseLocation || "Nairobi, Kenya",
+            category: p.category,
+            description: p.description,
+          };
+
+          setProduct(formattedProduct);
+
+          // Fetch related products strictly from backend API based on category
+          try {
+            const relResponse = await fetch(`/api/products?category=${encodeURIComponent(p.category)}&limit=5`);
+            if (relResponse.ok) {
+              const relResult = await relResponse.json();
+              const relItems: Product[] = relResult.data || relResult.products || [];
+
+              const formattedRelated: DisplayProduct[] = relItems
+                .filter((item) => item.id !== p.id)
+                .slice(0, 4)
+                .map((item) => ({
+                  id: item.id,
+                  image: item.photos?.[0] || (item as any).image || placeholderImage(item.name),
+                  name: item.name,
+                  price: item.price,
+                  rating: item.rating || 4.8,
+                  reviews: item.reviews || 0,
+                  badge: item.quality ? item.quality : undefined,
+                  sellerName: (item as any).seller?.name || item.sellerName || "Verified Seller",
+                  sellerId: item.sellerId || "seller_01",
+                  sellerContact: (item as any).seller?.phoneNumber || item.sellerContact || "+254 700 000 000",
+                  warehouseLocation: item.warehouseLocation || "Nairobi, Kenya",
+                  category: item.category,
+                  description: item.description,
+                }));
+
+              setRecommendedProducts(formattedRelated);
+            }
+          } catch (relErr) {
+            console.error("Failed to fetch related products:", relErr);
           }
+        } else {
+          setProduct(null);
         }
       } catch (err) {
-        console.warn("API fetch failed, checking local storage cache...", err);
+        console.error("API fetch error:", err);
+        setProduct(null);
+      } finally {
+        setIsLoading(false);
       }
-
-      // 2. Fallback to localStorage if API fetch fails or product is missing
-      const storedProducts: Product[] = JSON.parse(
-        localStorage.getItem("fundimart_products") || "[]"
-      );
-      
-      const formattedStored: DisplayProduct[] = storedProducts.map((p: Product) => ({
-        id: p.id,
-        image: p.photos?.[0] || (p as any).image || placeholderImage(p.name),
-        name: p.name,
-        price: p.price,
-        rating: p.rating || 4.8,
-        reviews: p.reviews || 0,
-        badge: p.quality ? p.quality : undefined,
-        sellerName: p.sellerName || "Verified Seller",
-        sellerId: p.sellerId || "seller_01",
-        sellerContact: p.sellerContact || "+254 700 000 000",
-        warehouseLocation: p.warehouseLocation || "Nairobi, Kenya",
-        category: p.category,
-        description: p.description,
-      }));
-
-      setAllProducts(formattedStored);
-
-      if (fetchedProduct) {
-        setProduct(fetchedProduct);
-      } else {
-        const foundLocal = formattedStored.find((p) => p.id === id);
-        setProduct(foundLocal || null);
-      }
-
-      setIsLoading(false);
     };
 
     if (id) loadProductData();
@@ -150,10 +158,6 @@ const ProductDetail = () => {
   const handleRequestRFQ = () => {
     navigate("/planner");
   };
-
-  const recommendedProducts = allProducts
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
