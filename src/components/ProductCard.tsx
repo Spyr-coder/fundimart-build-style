@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ShoppingCart, Heart, Star, ShieldCheck, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,8 +14,8 @@ interface ProductCardProps {
   unit?: string;
   category?: string;
   originalPrice?: number;
-  rating: number;
-  reviews: number;
+  rating?: number;
+  reviews?: number;
   badge?: string;
   sellerId?: string;
   minOrder?: string;
@@ -29,18 +29,20 @@ const ProductCard = ({
   unit = "piece",
   category,
   originalPrice,
-  rating,
-  reviews,
+  rating = 0,
+  reviews = 0,
   badge,
   sellerId = "static-seller",
   minOrder = "1 Piece",
 }: ProductCardProps) => {
   const { addToCart } = useCart();
   const [isFavorited, setIsFavorited] = useState(false);
-  const [imgSrc, setImgSrc] = useState<string>(
-    getProductImage(image, category, name)
-  );
+  const [imgSrc, setImgSrc] = useState<string>("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setImgSrc(getProductImage(image, category, name));
+  }, [image, category, name]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -52,12 +54,15 @@ const ProductCard = ({
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsFavorited(!isFavorited);
-    if (!isFavorited) {
-      toast.success(`${name} added to favorites`);
-    } else {
-      toast.info(`${name} removed from favorites`);
-    }
+    setIsFavorited((prev) => {
+      const nextState = !prev;
+      if (nextState) {
+        toast.success(`${name} added to favorites`);
+      } else {
+        toast.info(`${name} removed from favorites`);
+      }
+      return nextState;
+    });
   };
 
   const handleInquire = (e: React.MouseEvent) => {
@@ -70,6 +75,10 @@ const ProductCard = ({
     setImgSrc(getProductImage(undefined, category, name));
   };
 
+  const safePrice = Number(price) || 0;
+  const safeOriginalPrice = originalPrice ? Number(originalPrice) : null;
+  const safeRating = Number(rating) || 0;
+
   return (
     <div className="group bg-card rounded-xl border border-border/70 overflow-hidden hover:border-primary hover:shadow-lg transition-all duration-200 flex flex-col h-full relative">
       {/* Image container */}
@@ -81,6 +90,7 @@ const ProductCard = ({
         )}
         
         <button 
+          type="button"
           onClick={handleToggleFavorite}
           className="absolute top-2 right-2 z-10 w-7 h-7 md:w-8 md:h-8 bg-background/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background border border-border/50 shadow-sm"
           title="Add to Wishlist"
@@ -129,14 +139,14 @@ const ProductCard = ({
               <Star
                 key={i}
                 className={`w-3 h-3 ${
-                  i < Math.floor(rating)
+                  i < Math.floor(safeRating)
                     ? "fill-amber-400 text-amber-400"
                     : "fill-muted text-muted"
                 }`}
               />
             ))}
           </div>
-          <span className="text-[11px] font-bold text-foreground">{rating.toFixed(1)}</span>
+          <span className="text-[11px] font-bold text-foreground">{safeRating.toFixed(1)}</span>
           <span className="text-[10px] text-muted-foreground">({reviews})</span>
         </div>
 
@@ -144,11 +154,11 @@ const ProductCard = ({
         <div className="mt-auto pt-1 mb-3">
           <div className="flex items-baseline gap-1.5 flex-wrap">
             <span className="text-base md:text-lg font-black text-primary">
-              KES {price.toLocaleString()}
+              KES {safePrice.toLocaleString()}
             </span>
-            {originalPrice && (
+            {safeOriginalPrice && (
               <span className="text-xs text-muted-foreground line-through font-normal">
-                KES {originalPrice.toLocaleString()}
+                KES {safeOriginalPrice.toLocaleString()}
               </span>
             )}
           </div>

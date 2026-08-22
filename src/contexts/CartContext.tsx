@@ -13,8 +13,8 @@ export interface CartItem {
 interface CartContextType {
   items: CartItem[];
   addToCart: (item: Omit<CartItem, "quantity">) => void;
-  removeFromCart: (name: string) => void;
-  updateQuantity: (name: string, quantity: number) => void;
+  removeFromCart: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -36,46 +36,66 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   // Sync state changes with localStorage automatically
   useEffect(() => {
-    localStorage.setItem("fundimart_cart", JSON.stringify(items));
+    try {
+      localStorage.setItem("fundimart_cart", JSON.stringify(items));
+    } catch (error) {
+      console.error("Failed to save cart to localStorage:", error);
+    }
   }, [items]);
 
   const addToCart = (item: Omit<CartItem, "quantity">) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.name === item.name);
+      // Find item by unique ID instead of name
+      const existing = prev.find((i) => i.id === item.id);
       if (existing) {
         return prev.map((i) =>
-          i.name === item.name ? { ...i, quantity: i.quantity + 1 } : i
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
         );
       }
       return [...prev, { ...item, quantity: 1 }];
     });
   };
 
-  const removeFromCart = (name: string) => {
-    setItems((prev) => prev.filter((i) => i.name !== name));
+  const removeFromCart = (id: string) => {
+    setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const updateQuantity = (name: string, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(name);
+      removeFromCart(id);
       return;
     }
     setItems((prev) =>
-      prev.map((i) => (i.name === name ? { ...i, quantity } : i))
+      prev.map((i) => (i.id === id ? { ...i, quantity } : i))
     );
   };
 
   const clearCart = () => {
     setItems([]);
-    localStorage.removeItem("fundimart_cart");
+    try {
+      localStorage.removeItem("fundimart_cart");
+    } catch (error) {
+      console.error("Failed to clear cart from localStorage:", error);
+    }
   };
 
-  const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
-  const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const totalItems = items.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
+  const totalPrice = items.reduce(
+    (sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 0),
+    0
+  );
 
   return (
     <CartContext.Provider
-      value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice }}
+      value={{
+        items,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        totalItems,
+        totalPrice,
+      }}
     >
       {children}
     </CartContext.Provider>

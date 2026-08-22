@@ -48,3 +48,54 @@ export const getSellerBadge = (hardwareName?: string): string => {
   const name = encodeURIComponent(hardwareName || "Hardware Store");
   return `https://ui-avatars.com/api/?name=${name}&background=0F172A&color=38BDF8&bold=true&size=128`;
 };
+
+/**
+ * Compresses File objects or raw Base64 strings to optimized JPEG Data URLs.
+ * Shrinks 3MB+ raw uploads down to ~100–150KB to protect database & localStorage quotas.
+ */
+export const compressImageFile = (
+  input: File | string,
+  maxWidth = 1000,
+  quality = 0.7
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const processDataUrl = (dataUrl: string) => {
+      const img = new Image();
+      img.src = dataUrl;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0, width, height);
+
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = (error) => reject(error);
+    };
+
+    if (typeof input === "string") {
+      processDataUrl(input);
+    } else {
+      const reader = new FileReader();
+      reader.readAsDataURL(input);
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          processDataUrl(event.target.result as string);
+        } else {
+          reject(new Error("Failed to read image file."));
+        }
+      };
+      reader.onerror = (error) => reject(error);
+    }
+  });
+};

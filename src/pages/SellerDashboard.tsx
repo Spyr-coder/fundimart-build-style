@@ -36,14 +36,14 @@ const SellerDashboard = () => {
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-  
+
   const [stats, setStats] = useState({
     totalSales: 0,
     totalRevenue: 0,
     activeListings: 0,
     outOfStock: 0,
   });
-  
+
   const [orders, setOrders] = useState<SellerOrder[]>([]);
 
   useEffect(() => {
@@ -53,7 +53,7 @@ const SellerDashboard = () => {
   }, [isSeller, navigate]);
 
   const getAuthToken = () => {
-    return localStorage.getItem("fundimart_token") || localStorage.getItem("token") || ""; 
+    return localStorage.getItem("fundimart_token") || localStorage.getItem("token") || "";
   };
 
   const fetchSellerProducts = async () => {
@@ -67,20 +67,20 @@ const SellerDashboard = () => {
       const result = await response.json();
       const dbProducts = ((result.data || []) as Product[]).filter((p) => p.sellerId === user.id);
       setProducts(dbProducts);
-      setStats(prev => ({ 
-        ...prev, 
-        activeListings: dbProducts.length, 
-        outOfStock: dbProducts.filter((p) => p.stock === 0).length 
+      setStats(prev => ({
+        ...prev,
+        activeListings: dbProducts.length,
+        outOfStock: dbProducts.filter((p) => p.stock === 0).length
       }));
     } catch (error) {
       console.warn("Error fetching seller products, falling back to localStorage:", error);
       const allProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
       const sellerProducts = allProducts.filter((p: Product) => p.sellerId === user.id);
       setProducts(sellerProducts);
-      setStats(prev => ({ 
-        ...prev, 
-        activeListings: sellerProducts.length, 
-        outOfStock: sellerProducts.filter((p: Product) => p.stock === 0).length 
+      setStats(prev => ({
+        ...prev,
+        activeListings: sellerProducts.length,
+        outOfStock: sellerProducts.filter((p: Product) => p.stock === 0).length
       }));
     }
   };
@@ -95,14 +95,20 @@ const SellerDashboard = () => {
       const sellerOrders: SellerOrder[] = [];
 
       allOrders.forEach((order) => {
-        order.items.forEach((item) => {
+        const orderItems = order.items || [];
+        let includesSellerItem = false;
+
+        orderItems.forEach((item) => {
           if (item.sellerId === user.id) {
-            sellerRevenue += item.price * item.quantity;
-            sellerSalesCount += item.quantity;
+            includesSellerItem = true;
+            const price = Number(item.price) || 0;
+            const quantity = Number(item.quantity) || 0;
+            sellerRevenue += price * quantity;
+            sellerSalesCount += quantity;
           }
         });
-        const hasSellerItem = order.items?.some((item) => item.sellerId === user.id);
-        if (hasSellerItem) {
+
+        if (includesSellerItem) {
           sellerOrders.push(order);
         }
       });
@@ -113,7 +119,7 @@ const SellerDashboard = () => {
         totalRevenue: sellerRevenue,
       }));
 
-      setOrders(sellerOrders.sort((a, b) => b.createdAt - a.createdAt));
+      setOrders(sellerOrders.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)));
     }
   }, [user]);
 
@@ -122,21 +128,21 @@ const SellerDashboard = () => {
     try {
       const token = getAuthToken();
 
-      const photosArray = data.photos && data.photos.length > 0 
-        ? data.photos 
+      const photosArray = data.photos && data.photos.length > 0
+        ? data.photos
         : (data as any).image ? [(data as any).image] : [];
-      
+
       const singleImage = photosArray[0] || (data as any).image || "";
 
       const response = await fetch("/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify({ 
-          name: data.name, 
-          price: data.price, 
-          unit: data.unit, 
-          stock: data.stock, 
-          category: data.category || "general", 
+        body: JSON.stringify({
+          name: data.name,
+          price: data.price,
+          unit: data.unit,
+          stock: data.stock,
+          category: data.category || "general",
           description: data.description || "",
           photos: photosArray,
           image: singleImage
@@ -179,8 +185,8 @@ const SellerDashboard = () => {
     try {
       const token = getAuthToken();
 
-      const photosArray = data.photos && data.photos.length > 0 
-        ? data.photos 
+      const photosArray = data.photos && data.photos.length > 0
+        ? data.photos
         : (data as any).image ? [(data as any).image] : [];
       const singleImage = photosArray[0] || (data as any).image || "";
 
@@ -196,11 +202,11 @@ const SellerDashboard = () => {
 
       if (!response.ok) throw new Error("Failed to update product");
 
-      const updatedProduct: Product = { 
-        ...editingProduct, 
-        ...data, 
+      const updatedProduct: Product = {
+        ...editingProduct,
+        ...data,
         photos: photosArray,
-        updatedAt: Date.now() 
+        updatedAt: Date.now()
       };
 
       const allProducts = JSON.parse(localStorage.getItem("fundimart_products") || "[]");
